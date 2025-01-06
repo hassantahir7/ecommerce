@@ -8,17 +8,9 @@ export class MailerService {
     recepient: string,
     subject: string,
     email_body: string,
-    appointment?: boolean,
-    doctor?: boolean,
   ): Promise<any> {
     const transporter = this.getTransporter();
-    const mailOptions = this.getMailOptions(
-      recepient,
-      subject,
-      email_body,
-      appointment,
-      doctor,
-    );
+    const mailOptions = this.getMailOptions(recepient, subject, email_body);
 
     transporter.sendMail(mailOptions, (error: { message: any }) => {
       if (error) {
@@ -42,15 +34,9 @@ export class MailerService {
     });
   }
 
-  getMailOptions(
-    recepient: string,
-    subject: string,
-    email_body: string,
-    appointment?: boolean,
-    doctor?: boolean,
-  ) {
+  getMailOptions(recepient: string, subject: string, email_body: string) {
     const mailOptions = {
-      from: `"Dr Wafa Clinic" <${process.env.APP_EMAIL}>`, // Pretty sender name
+      from: `"Arabic Latina" <${process.env.APP_EMAIL}>`, // Pretty sender name
       to: recepient,
       subject: subject,
       html: `
@@ -116,23 +102,16 @@ export class MailerService {
         <body>
           <div class="email-container">
             <div class="email-header">
-              <h1>Dr Wafa Clinic</h1>
+              <h1>Arabic Latina</h1>
             </div>
             <div class="email-body">
-              ${
-                doctor
-                  ? `<p>${email_body}</p>`
-                  : appointment
-                    ? `<p>${email_body}</p>`
-                    : `
+              $
                     <p>This is a one-time verification code.</p>
                     <p class="otp">Your OTP: <span>${email_body}</span></p>
-                    <p style="margin-top: 20px;">Thank you for choosing Dr Wafa Clinic. We’re here to help you stay healthy!</p>
-                  `
-              }
+                    <p style="margin-top: 20px;">Thank you for choosing Arabic Latina.!</p>
             </div>
             <div class="email-footer">
-              &copy; ${new Date().getFullYear()} Dr Wafa Clinic. All rights reserved.
+              &copy; ${new Date().getFullYear()} Arabic Latina. All rights reserved.
             </div>
           </div>
         </body>

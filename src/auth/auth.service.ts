@@ -57,7 +57,7 @@ export class AuthService {
       const body = `${verifyData.otp}`;
       await this.mailerService.sendEmail(
         registerDto.email,
-        'OTP for verification Booking Engine',
+        'OTP for verification Arabic Latina',
         body,
       );
 
