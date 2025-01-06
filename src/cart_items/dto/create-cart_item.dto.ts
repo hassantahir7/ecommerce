@@ -2,13 +2,7 @@ import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCartItemDto {
-  @ApiProperty({
-    example: '12345678-abcd-efgh-ijkl-9876543210',
-    description: 'Cart ID that this item belongs to',
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  cartId: string;
+ 
 
   @ApiProperty({
     example: 'abcdef12-3456-7890-ghij-klmnopqrst',

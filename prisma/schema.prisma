@@ -31,6 +31,7 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   Cart       Cart[]
+  Order      Order[]
 }
 
 model VerifyUser {
@@ -67,18 +68,20 @@ model Product {
 }
 
 model ProductVariant {
-  variantId  String     @id @default(uuid())
+  variantId  String      @id @default(uuid())
   productId  String
-  product    Product    @relation(fields: [productId], references: [productId])
+  product    Product     @relation(fields: [productId], references: [productId])
   color      String
   size       String
-  stock      Int        @default(0)
+  stock      Int         @default(0)
   price      Float
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  is_Active  Boolean    @default(true)
-  is_Deleted Boolean    @default(false)
+  isInStock   Boolean    @default(true)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  is_Active  Boolean     @default(true)
+  is_Deleted Boolean     @default(false)
   CartItem   CartItem[]
+  OrderItem  OrderItem[]
 }
 
 model Cart {
@@ -115,6 +118,50 @@ model Categories {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   Product    Product[]
+}
+
+model Order {
+  orderId       String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [userId])
+  address       String
+  contactNumber String
+  quantity      Int
+  discount      Float       @default(0.0)
+  total         Float
+  subtotal      Float
+  paymentMethod PaymentMethod
+  status        OrderStatus @default(PENDING)
+  orderItems    OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  is_Active     Boolean     @default(true)
+  is_Deleted    Boolean     @default(false)
+}
+
+model OrderItem {
+  orderItemId String         @id @default(uuid())
+  orderId     String
+  order       Order          @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [variantId])
+  quantity    Int
+  price       Float
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  is_Active   Boolean        @default(true)
+  is_Deleted  Boolean        @default(false)
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
 }
 
 enum Gender {
