@@ -14,7 +14,7 @@ import {
 import { CartItemsService } from './cart_items.service';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CartItemsEndpoints } from 'src/common/endpoints/cart-items.dto';
 import { JwtGuard } from 'src/auth/jwt/jwt.guard';
 
@@ -27,6 +27,7 @@ export class CartItemsController {
   @UseGuards(JwtGuard)
   @Post(CartItemsEndpoints.create)
   @ApiOperation({ summary: 'Create a new cart item' })
+  @ApiBearerAuth() 
   async create(@Body() createCartItemDto: CreateCartItemDto, @Req() req) {
     return this.cartItemsService.create(createCartItemDto, req.user.userId);
   }
