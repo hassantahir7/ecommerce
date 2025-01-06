@@ -6,6 +6,7 @@ import { ImageModule } from './image/image.module';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from './mailer/mailer.module';
 import { ConfigModule } from '@nestjs/config';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     ImageModule,
     AuthModule,
     MailerModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

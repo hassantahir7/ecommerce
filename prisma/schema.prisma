@@ -14,14 +14,14 @@ datasource db {
 }
 
 model User {
-  userId     String  @id @default(uuid())
-  profilePic String? @default("dummy")
-  name       String
-  email      String  @unique
-  password   String
+  userId        String  @id @default(uuid())
+  profilePic    String? @default("dummy")
+  name          String
+  email         String  @unique
+  password      String
   contactNumber String? @unique // made optional after UI
-  dateOfBirth String?
-  address     String?
+  dateOfBirth   String?
+  address       String?
 
   is_emailVerified         Boolean @default(false)
   is_contactNumberVerified Boolean @default(false)
@@ -46,4 +46,19 @@ model VerifyUser {
   @@map(name: "verifyUser")
 }
 
+model Categories {
+  categoryId String   @id @default(uuid())
+  name       String
+  attachment String?
+  gender     Gender
+  is_Active  Boolean  @default(true)
+  is_Deleted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
 
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+}
