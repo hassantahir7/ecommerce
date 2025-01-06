@@ -8,6 +8,8 @@ import { MailerModule } from './mailer/mailer.module';
 import { ConfigModule } from '@nestjs/config';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
+import { ProductVariantsModule } from './product_variants/product_variants.module';
+import { CartItemsModule } from './cart_items/cart_items.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ProductsModule } from './products/products.module';
     MailerModule,
     CategoriesModule,
     ProductsModule,
+    ProductVariantsModule,
+    CartItemsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

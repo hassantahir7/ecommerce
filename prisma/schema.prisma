@@ -48,21 +48,22 @@ model VerifyUser {
 }
 
 model Product {
-  productId   String           @id @default(uuid())
-  name        String
-  description String?
-  categoryId  String
-  category    Categories       @relation(fields: [categoryId], references: [categoryId])
-  style       String? 
-  isClothing  Boolean          @default(false)
-  isJewelry   Boolean          @default(false) 
-  composition String? 
-  weight      String? 
-  Variants    ProductVariant[] 
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  is_Active   Boolean          @default(true)
-  is_Deleted  Boolean          @default(false)
+  productId       String           @id @default(uuid())
+  name            String
+  description     String?
+  categoryId      String
+  category        Categories       @relation(fields: [categoryId], references: [categoryId])
+  style           String?
+  isClothing      Boolean          @default(false)
+  isJewelry       Boolean          @default(false)
+  composition     String?
+  limitedAddition Boolean          @default(false)
+  weight          String?
+  Variants        ProductVariant[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  is_Active       Boolean          @default(true)
+  is_Deleted      Boolean          @default(false)
 }
 
 model ProductVariant {
@@ -71,8 +72,8 @@ model ProductVariant {
   product    Product    @relation(fields: [productId], references: [productId])
   color      String
   size       String
-  stock      Int        @default(0) 
-  price      Float 
+  stock      Int        @default(0)
+  price      Float
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   is_Active  Boolean    @default(true)
@@ -81,12 +82,14 @@ model ProductVariant {
 }
 
 model Cart {
-  cartId    String     @id @default(uuid())
-  userId    String
-  user      User       @relation(fields: [userId], references: [userId])
-  CartItems CartItem[] 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  cartId     String     @id @default(uuid())
+  userId     String     @unique
+  user       User       @relation(fields: [userId], references: [userId])
+  CartItems  CartItem[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  is_Active  Boolean    @default(true)
+  is_Deleted Boolean    @default(false)
 }
 
 model CartItem {
@@ -98,6 +101,8 @@ model CartItem {
   quantity   Int
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
+  is_Active  Boolean        @default(true)
+  is_Deleted Boolean        @default(false)
 }
 
 model Categories {
