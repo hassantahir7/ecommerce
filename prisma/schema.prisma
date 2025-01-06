@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId        String  @id @default(uuid())
+  profilePic    String? @default("dummy")
+  name          String
+  email         String  @unique
+  password      String
+  contactNumber String? @unique // made optional after UI
+  dateOfBirth   String?
+  address       String?
+
+  is_emailVerified         Boolean @default(false)
+  is_contactNumberVerified Boolean @default(false)
+
+  is_Active  Boolean  @default(true)
+  is_Deleted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Cart       Cart[]
+}
+
+model VerifyUser {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  otp               String
+  verificationTries Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  is_Active  Boolean @default(true)
+  is_Deleted Boolean @default(false)
+
+  @@map(name: "verifyUser")
+}
+
+model Product {
+  productId   String           @id @default(uuid())
+  name        String
+  description String?
+  categoryId  String
+  category    Categories       @relation(fields: [categoryId], references: [categoryId])
+  style       String? 
+  isClothing  Boolean          @default(false)
+  isJewelry   Boolean          @default(false) 
+  composition String? 
+  weight      String? 
+  Variants    ProductVariant[] 
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  is_Active   Boolean          @default(true)
+  is_Deleted  Boolean          @default(false)
+}
+
+model ProductVariant {
+  variantId  String     @id @default(uuid())
+  productId  String
+  product    Product    @relation(fields: [productId], references: [productId])
+  color      String
+  size       String
+  stock      Int        @default(0) 
+  price      Float 
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  is_Active  Boolean    @default(true)
+  is_Deleted Boolean    @default(false)
+  CartItem   CartItem[]
+}
+
+model Cart {
+  cartId    String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [userId])
+  CartItems CartItem[] 
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  cartItemId String         @id @default(uuid())
+  cartId     String
+  cart       Cart           @relation(fields: [cartId], references: [cartId])
+  variantId  String
+  variant    ProductVariant @relation(fields: [variantId], references: [variantId])
+  quantity   Int
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model Categories {
+  categoryId String    @id @default(uuid())
+  name       String
+  attachment String?
+  gender     Gender
+  is_Active  Boolean   @default(true)
+  is_Deleted Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  Product    Product[]
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+}
