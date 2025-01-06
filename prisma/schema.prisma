@@ -14,7 +14,36 @@ datasource db {
 }
 
 model User {
-  userId    String  @id @default(uuid())
-  name  String
-  email String @unique
+  userId     String  @id @default(uuid())
+  profilePic String? @default("dummy")
+  name       String
+  email      String  @unique
+  password   String
+  contactNumber String? @unique // made optional after UI
+  dateOfBirth String?
+  address     String?
+
+  is_emailVerified         Boolean @default(false)
+  is_contactNumberVerified Boolean @default(false)
+
+  is_Active  Boolean  @default(true)
+  is_Deleted Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
+
+model VerifyUser {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  otp               String
+  verificationTries Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  is_Active  Boolean @default(true)
+  is_Deleted Boolean @default(false)
+
+  @@map(name: "verifyUser")
+}
+
+
