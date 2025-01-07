@@ -30,6 +30,29 @@ export class ProductsService {
     }
   }
 
+  async getProductsByCategory(categoryId: string) {
+    if (!categoryId) {
+      throw new HttpException('No category ID provided', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const products = await this.prismaService.product.findMany({
+        where: { categoryId, is_Active: true, is_Deleted: false },
+      });
+
+      return {
+        success: true,
+        message: 'Products retrieved successfully',
+        data: products,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to retrieve products by category ID: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async findAll() {
     try {
       const products = await this.prismaService.product.findMany({

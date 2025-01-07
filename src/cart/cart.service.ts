@@ -38,7 +38,11 @@ export class CartService {
         include: {
           CartItems: {
             include: {
-              variant: true
+              variant: {
+                include: {
+                  product: true,
+                },
+              }
             }
           }
         }
