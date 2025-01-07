@@ -12,6 +12,7 @@ import { ProductVariantsModule } from './product_variants/product_variants.modul
 import { CartItemsModule } from './cart_items/cart_items.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OrderModule } from './order/order.module';
     CartItemsModule,
     CartModule,
     OrderModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
