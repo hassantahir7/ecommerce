@@ -53,12 +53,41 @@ export class ProductsService {
     }
   }
 
-  async findAll() {
+  async findAll(filters?: { type?: string; categoryName?: string; color?: string, sortOrder?: 'asc' | 'desc' }) {
     try {
-      const products = await this.prismaService.product.findMany({
-        where: { is_Active: true, is_Deleted: false },
-      });
 
+      
+      const products = await this.prismaService.product.findMany({
+        where: {
+          is_Active: true,
+          is_Deleted: false,
+          ...(filters?.type && {
+            category: {
+              gender: filters.type.toUpperCase(),  
+            },
+          }),
+          ...(filters?.categoryName && {
+            category: {
+              name: { contains: filters.categoryName, mode: 'insensitive' },  
+            },
+          }),
+          ...(filters?.color && {
+            Variants: {
+              some: { color: { contains: filters.color, mode: 'insensitive' } },  
+            },
+          }),
+        },
+        include: {
+          Variants: true, 
+          category: true, 
+        },
+        orderBy: [
+          {
+            basePrice: filters?.sortOrder || 'asc',
+          },
+        ],
+      });
+  
       return {
         success: true,
         message: 'Products retrieved successfully',
@@ -67,6 +96,35 @@ export class ProductsService {
     } catch (error) {
       throw new HttpException(
         `Failed to retrieve products: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  
+  
+
+  async getLimitedEditionProducts() {
+    try {
+      const products = await this.prismaService.product.findMany({
+        where: { limitedAddition: true, is_Active: true, is_Deleted: false },
+        include: { Variants: true }
+      });
+
+      if (!products) {
+        throw new HttpException('No limited edition products found', HttpStatus.NOT_FOUND);
+      }
+
+      return {
+        success: true,
+        message: 'Limited edition products retrieved successfully',
+        data: products,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        `Failed to retrieve limited edition products: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
