@@ -35,6 +35,14 @@ export class CreateProductDto {
   style?: string;
 
   @ApiProperty({
+    example: 'Round-neck T-shirt',
+    description: 'The style of the product',
+  })
+  @IsString()
+  @IsNotEmpty()
+  price: number;
+
+  @ApiProperty({
     example: true,
     description: 'Indicates if the product is clothing',
   })

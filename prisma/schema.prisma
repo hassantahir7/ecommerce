@@ -53,6 +53,7 @@ model Product {
   name            String
   description     String?
   categoryId      String
+  basePrice       Float?
   category        Categories       @relation(fields: [categoryId], references: [categoryId])
   style           String?
   isClothing      Boolean          @default(false)
