@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Query,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiTags, ApiOperation, } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProductsEndpoints } from 'src/common/endpoints/products.endpoint';
 
 @ApiTags('Products')
@@ -17,19 +28,44 @@ export class ProductsController {
   }
 
   @Get(ProductsEndpoints.findAll)
-@ApiOperation({
-  summary: 'Retrieve all products with optional filters (type, category, color)',
-  description: 'Retrieve products filtered by type, category name, or color. All filters are optional.',
-})
-async findAll(
-  @Query('type') type?: string,
-  @Query('categoryName') categoryName?: string,
-  @Query('color') color?: string,
-  @Query('sortOrder') sortOrder?: 'asc' | 'desc',
-) {
-  return this.productsService.findAll({ type, categoryName, color, sortOrder });
-}
+  @ApiOperation({
+    summary:
+      'Retrieve all products with optional filters (type, category, color)',
+    description:
+      'Retrieve products filtered by type, category name, or color. All filters are optional.',
+  })
+  async findAll(
+    @Query('type') type?: string,
+    @Query('categoryName') categoryName?: string,
+    @Query('color') color?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+  ) {
+    return this.productsService.findAll({
+      type,
+      categoryName,
+      color,
+      sortOrder,
+    });
+  }
 
+  @Get(ProductsEndpoints.findColorsByCategory)
+  @ApiOperation({
+    summary: 'Retrieve all colors of products',
+    description: 'Retrieve colors of products for filter.',
+  })
+  async findColorsByCategory(@Query('categoryName') categoryName?: string, ) {
+    return this.productsService.findColorsByCategory({categoryName,});
+  }
+
+  @Get(ProductsEndpoints.findColorsByCategory)
+  @ApiOperation({
+    summary: 'Retrieve all colors of products',
+    description: 'Retrieve colors of products for filter.',
+  })
+  @Get(ProductsEndpoints.searchProducts)
+  async searchProducts(@Query('query') query: string) {
+    return this.productsService.searchProducts(query);
+  }
 
   @Get(ProductsEndpoints.findOne)
   @ApiOperation({ summary: 'Retrieve a product by ID' })
@@ -45,7 +81,10 @@ async findAll(
 
   @Patch(ProductsEndpoints.update)
   @ApiOperation({ summary: 'Update an existing product' })
-  async update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
     return this.productsService.update(id, updateProductDto);
   }
 

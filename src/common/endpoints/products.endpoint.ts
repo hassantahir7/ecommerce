@@ -4,6 +4,8 @@ enum ProductsEndpoints {
     findOne = '/:id',
     update = '/:id',
     remove = '/:id',
+    findColorsByCategory = '/findColorsByCategory',
+    searchProducts = '/searchProducts',
     retrieveLimitedEditionProducts = 'retrieveLimitedEditionProducts'
   }
   

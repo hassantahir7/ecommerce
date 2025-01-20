@@ -1,9 +1,9 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsNumber, IsUUID } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsNumber, IsUUID, IsUrl } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductVariantsDto {
   @ApiProperty({
-    example: '12345678-abcd-efgh-ijkl-9876543210',
+    example: 'c35af475-3ea1-4b82-973b-fed7b608d712',
     description: 'Product ID that this variant belongs to',
   })
   @IsUUID()
@@ -17,6 +17,22 @@ export class CreateProductVariantsDto {
   @IsString()
   @IsNotEmpty()
   color: string;
+
+
+  @ApiProperty({
+    example: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFFfgKQ-yMbAeM1Z2LcaEcnjgkjcqASTgadQ&s',
+    description: 'Picture of the product variant',
+  })
+  @IsUrl()
+  @IsNotEmpty()
+  attachment: string;
+
+  @ApiProperty({
+    example: false,
+    description: 'Check if the product has duo tone',
+  })
+  @IsNotEmpty()
+  isDuotone: boolean;
 
   @ApiProperty({
     example: 'M',

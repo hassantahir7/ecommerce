@@ -10,7 +10,10 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto) {
     try {
       if (!createProductDto) {
-        throw new HttpException('No product data provided', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          'No product data provided',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       const createProduct = await this.prismaService.product.create({
@@ -32,7 +35,10 @@ export class ProductsService {
 
   async getProductsByCategory(categoryId: string) {
     if (!categoryId) {
-      throw new HttpException('No category ID provided', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'No category ID provided',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     try {
@@ -53,33 +59,43 @@ export class ProductsService {
     }
   }
 
-  async findAll(filters?: { type?: string; categoryName?: string; color?: string, sortOrder?: 'asc' | 'desc' }) {
+  async findAll(filters?: {
+    type?: string;
+    categoryName?: string;
+    color?: string;
+    sortOrder?: 'asc' | 'desc';
+  }) {
     try {
+      const colorsArray = filters?.color ? filters.color.split(',') : [];
 
-      
       const products = await this.prismaService.product.findMany({
         where: {
           is_Active: true,
           is_Deleted: false,
           ...(filters?.type && {
             category: {
-              gender: filters.type.toUpperCase(),  
+              gender: filters.type.toUpperCase(),
             },
           }),
           ...(filters?.categoryName && {
             category: {
-              name: { contains: filters.categoryName, mode: 'insensitive' },  
+              name: { contains: filters.categoryName, mode: 'insensitive' },
             },
           }),
-          ...(filters?.color && {
+          ...(colorsArray.length > 0 && {
             Variants: {
-              some: { color: { contains: filters.color, mode: 'insensitive' } },  
+              some: {
+                color: {
+                  in: colorsArray,
+                  mode: 'insensitive',
+                },
+              },
             },
           }),
         },
         include: {
-          Variants: true, 
-          category: true, 
+          Variants: true,
+          category: true,
         },
         orderBy: [
           {
@@ -87,11 +103,40 @@ export class ProductsService {
           },
         ],
       });
-  
+
+      const processedProducts = products.map((product) => {
+        let colorsAvailable = product.Variants.map((variant) => variant.color);
+
+        let uniqueColors: string[] = [];
+
+        colorsAvailable.forEach((color) => {
+          if (color.includes('&')) {
+            const duotoneColors = color.split('&').map((col) => col.trim());
+            duotoneColors.forEach((duoColor) => {
+              if (!uniqueColors.includes(duoColor)) {
+                uniqueColors.push(duoColor);
+              }
+            });
+          } else {
+            if (!uniqueColors.includes(color)) {
+              uniqueColors.push(color); // Add only if not already added
+            }
+          }
+        });
+
+        const totalColors = uniqueColors.length;
+
+        return {
+          ...product,
+          colorsAvailable: uniqueColors,
+          totalColors,
+        };
+      });
+
       return {
         success: true,
         message: 'Products retrieved successfully',
-        data: products,
+        data: processedProducts,
       };
     } catch (error) {
       throw new HttpException(
@@ -100,18 +145,81 @@ export class ProductsService {
       );
     }
   }
-  
-  
+
+  async findColorsByCategory(data?: { categoryName: string }) {
+    try {
+      const { categoryName } = data;
+
+      const duotoneVariants = await this.prismaService.productVariant.findMany({
+        where: {
+          product: {
+            is_Active: true,
+            is_Deleted: false,
+            category: {
+              name: { contains: categoryName, mode: 'insensitive' },
+            },
+          },
+          isDuotone: true,
+        },
+        select: { color: true },
+      });
+
+      const colorVariants = await this.prismaService.productVariant.findMany({
+        where: {
+          product: {
+            is_Active: true,
+            is_Deleted: false,
+            category: {
+              name: { contains: categoryName, mode: 'insensitive' },
+            },
+          },
+          isDuotone: false,
+        },
+        select: { color: true },
+      });
+
+      const duotoneColors = duotoneVariants
+        .map((variant) => variant.color)
+        .filter((color): color is string => !!color);
+      const regularColors = colorVariants
+        .map((variant) => variant.color)
+        .filter((color): color is string => !!color);
+
+      return {
+        success: true,
+        message: 'Colors retrieved successfully for the category',
+        data: {
+          categoryName,
+          colors: {
+            duotone: duotoneColors,
+            regular: regularColors,
+          },
+          totalColors: {
+            duotone: duotoneColors.length,
+            regular: regularColors.length,
+          },
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to retrieve colors: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
   async getLimitedEditionProducts() {
     try {
       const products = await this.prismaService.product.findMany({
         where: { limitedAddition: true, is_Active: true, is_Deleted: false },
-        include: { Variants: true }
+        include: { Variants: true },
       });
 
       if (!products) {
-        throw new HttpException('No limited edition products found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'No limited edition products found',
+          HttpStatus.NOT_FOUND,
+        );
       }
 
       return {
@@ -125,6 +233,37 @@ export class ProductsService {
       }
       throw new HttpException(
         `Failed to retrieve limited edition products: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async searchProducts(query) {
+    try {
+      const products = await this.prismaService.product.findMany({
+        where: {
+          name: {
+            contains: query,
+            mode: 'insensitive',
+          },
+          is_Active: true,
+          is_Deleted: false,
+        },
+        include: {
+          Variants: true,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Search results retrieved successfully',
+        data: {
+          products,
+        },
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to retrieve search results: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

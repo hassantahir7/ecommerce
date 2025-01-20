@@ -7,6 +7,14 @@ import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: '*', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+    allowedHeaders: 'Content-Type, Authorization', 
+    credentials: true,
+  });
+
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,15 +33,12 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  
 
-app.use(
-  '/payments/webhook',
-  bodyParser.raw({ type: 'application/json' }),
-);
+  app.use(
+    '/payments/webhook',
+    bodyParser.raw({ type: 'application/json' }),
+  );
 
-
-
-  await app.listen(3000);
+  await app.listen(4000);
 }
 bootstrap();

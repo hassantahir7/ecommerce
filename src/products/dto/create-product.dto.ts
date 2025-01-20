@@ -35,12 +35,11 @@ export class CreateProductDto {
   style?: string;
 
   @ApiProperty({
-    example: 'Round-neck T-shirt',
-    description: 'The style of the product',
+    example: 'Base price of product.',
+    description: 'The price of the product could be 20',
   })
-  @IsString()
   @IsNotEmpty()
-  price: number;
+  basePrice: number;
 
   @ApiProperty({
     example: true,
