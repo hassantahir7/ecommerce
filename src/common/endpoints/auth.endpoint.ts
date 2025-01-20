@@ -3,6 +3,7 @@ enum AuthEndpoints {
   login = '/login',
   verifyUser = '/verifyUser',
   resetPassword = '/resetPassword',
+  sendOTP = '/sendOTP',
 }
 
 export { AuthEndpoints };

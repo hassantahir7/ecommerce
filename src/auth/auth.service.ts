@@ -14,6 +14,7 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { ConfigService } from '@nestjs/config';
 import { LogInDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SendOTPDto } from './dto/send-otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -221,6 +222,26 @@ export class AuthService {
         'Failed to reset password',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  async sendOtp(sendOTPDto: SendOTPDto) {
+    try {
+      const verifyData = await this.verifyService.generateAndStoreOTP(
+        sendOTPDto.email,
+      );
+      const body = `${verifyData.otp}`;
+      await this.mailerService.sendEmail(
+        sendOTPDto.email,
+        'OTP for verification Arabic Latina',
+        body,
+      );
+      return {
+        success: true,
+        message: 'OTP sent successfully',
+      };
+    } catch (error) {
+      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
