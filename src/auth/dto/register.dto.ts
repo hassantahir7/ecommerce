@@ -69,7 +69,7 @@ export class RegisterDto {
     required: false,
   })
   @IsOptional()
-  subscription: string;
+  subscription: boolean;
 
 
   // @ApiProperty({
