@@ -7,6 +7,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtGuard } from './jwt/jwt.guard';
 import { ApiBody, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { VerifyUserDto } from './dto/verify-user.dto';
+import { SendOTPDto } from './dto/send-otp.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -36,5 +37,11 @@ export class AuthController {
   @Patch(AuthEndpoints.resetPassword)
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto, @Req() req) {
     return this.authService.resetPassword(req.user.userId, resetPasswordDto);
+  }
+
+  @ApiOperation({ summary: 'Send otp for users who forgot their password' })
+  @Post(AuthEndpoints.sendOTP)
+  sendOtp(@Body() sendOTPDto: SendOTPDto) {
+    return this.authService.sendOtp(sendOTPDto);
   }
 }
