@@ -41,35 +41,44 @@ export class RegisterDto {
   })
   password: string;
 
-  @ApiProperty({
-    example: '+923001234567',
-    description:
-      'Optional contact number in the format +923001234567 or 03001234567, 10-15 digits',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  @Matches(/^\+?\d{10,15}$/, {
-    message:
-      'Invalid Phone Number: Phone Number should be in the format +923001234567 or 03001234567 and between 10-15 digits',
-  })
-  contactNumber: string;
+  // @ApiProperty({
+  //   example: '+923001234567',
+  //   description:
+  //     'Optional contact number in the format +923001234567 or 03001234567, 10-15 digits',
+  //   required: false,
+  // })
+  // @IsString()
+  // @IsOptional()
+  // @Matches(/^\+?\d{10,15}$/, {
+  //   message:
+  //     'Invalid Phone Number: Phone Number should be in the format +923001234567 or 03001234567 and between 10-15 digits',
+  // })
+  // contactNumber: string;
+
+  // @ApiProperty({
+  //   example: '1995-08-15',
+  //   description: 'Optional date of birth in ISO format (YYYY-MM-DD)',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // dateOfBirth: string;
 
   @ApiProperty({
-    example: '1995-08-15',
-    description: 'Optional date of birth in ISO format (YYYY-MM-DD)',
+    example: false,
+    description: 'Subscribe to our newsletter',
     required: false,
   })
   @IsOptional()
-  dateOfBirth: string;
+  subscription: string;
 
-  @ApiProperty({
-    example: 'https://example.com/profile-pic.jpg',
-    description: 'Optional URL to the profile picture',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  @IsUrl()
-  profilePic: string;
+
+  // @ApiProperty({
+  //   example: 'https://example.com/profile-pic.jpg',
+  //   description: 'Optional URL to the profile picture',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // @IsString()
+  // @IsUrl()
+  // profilePic: string;
 }
