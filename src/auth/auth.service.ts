@@ -237,6 +237,7 @@ export class AuthService {
         body,
       );
       return {
+        data: {email : sendOTPDto.email},
         success: true,
         message: 'OTP sent successfully',
       };
