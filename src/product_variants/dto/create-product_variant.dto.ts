@@ -18,6 +18,14 @@ export class CreateProductVariantsDto {
   @IsNotEmpty()
   color: string;
 
+  @ApiProperty({
+    example: 'Textured',
+    description: 'Style of the product variant',
+  })
+  @IsString()
+  @IsNotEmpty()
+  style: string;
+
 
   @ApiProperty({
     example: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFFfgKQ-yMbAeM1Z2LcaEcnjgkjcqASTgadQ&s',

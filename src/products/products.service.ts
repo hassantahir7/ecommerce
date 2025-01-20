@@ -63,6 +63,7 @@ export class ProductsService {
     type?: string;
     categoryName?: string;
     color?: string;
+    style?: string
     sortOrder?: 'asc' | 'desc';
   }) {
     try {
@@ -80,6 +81,14 @@ export class ProductsService {
           ...(filters?.categoryName && {
             category: {
               name: { contains: filters.categoryName, mode: 'insensitive' },
+            },
+          }),
+
+          ...(filters?.style && {
+            Variants: {
+              some: {
+                style: { contains: filters.style, mode: 'insensitive' },
+              }
             },
           }),
           ...(colorsArray.length > 0 && {
@@ -178,12 +187,29 @@ export class ProductsService {
         select: { color: true },
       });
 
+      const style = await this.prismaService.productVariant.findMany({
+        where: {
+          product: {
+            is_Active: true,
+            is_Deleted: false,
+            category: {
+              name: { contains: categoryName, mode: 'insensitive' },
+            },
+          },
+        },
+        select: { style: true },
+      });
+
       const duotoneColors = duotoneVariants
         .map((variant) => variant.color)
         .filter((color): color is string => !!color);
       const regularColors = colorVariants
         .map((variant) => variant.color)
         .filter((color): color is string => !!color);
+
+        const regularStyles = style
+        .map((index) => index.style)
+        .filter((style): style is string => !!style);
 
       return {
         success: true,
@@ -194,6 +220,7 @@ export class ProductsService {
             duotone: duotoneColors,
             regular: regularColors,
           },
+          style: regularStyles,
           totalColors: {
             duotone: duotoneColors.length,
             regular: regularColors.length,

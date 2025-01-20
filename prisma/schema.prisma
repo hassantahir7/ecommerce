@@ -56,7 +56,6 @@ model Product {
   categoryId      String
   basePrice       Float?
   category        Categories       @relation(fields: [categoryId], references: [categoryId])
-  style           String?
   isClothing      Boolean          @default(false)
   isJewelry       Boolean          @default(false)
   composition     String?
@@ -77,6 +76,7 @@ model ProductVariant {
   attachment String
   isDuotone  Boolean     @default(false)
   size       String
+  style           String?
   stock      Int         @default(0)
   price      Float
   isInStock  Boolean     @default(true)

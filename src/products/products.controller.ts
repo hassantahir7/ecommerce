@@ -38,12 +38,14 @@ export class ProductsController {
     @Query('type') type?: string,
     @Query('categoryName') categoryName?: string,
     @Query('color') color?: string,
+    @Query('style') style?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     return this.productsService.findAll({
       type,
       categoryName,
       color,
+      style,
       sortOrder,
     });
   }
@@ -57,7 +59,7 @@ export class ProductsController {
     return this.productsService.findColorsByCategory({categoryName,});
   }
 
-  @Get(ProductsEndpoints.findColorsByCategory)
+  @Get(ProductsEndpoints.searchProducts)
   @ApiOperation({
     summary: 'Retrieve all colors of products',
     description: 'Retrieve colors of products for filter.',
