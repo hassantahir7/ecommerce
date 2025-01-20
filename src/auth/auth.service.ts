@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { LogInDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
+import { ForgetPasswordDto } from './dto/forget-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -237,12 +238,62 @@ export class AuthService {
         body,
       );
       return {
-        data: {email : sendOTPDto.email},
+        data: { email: sendOTPDto.email },
         success: true,
         message: 'OTP sent successfully',
       };
     } catch (error) {
-      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  async updatePassword(forgetPasswordDto: ForgetPasswordDto) {
+    try {
+      const { email, newPassword, confirmNewPassword } = forgetPasswordDto;
+
+      if (!email || !newPassword || !confirmNewPassword) {
+        throw new HttpException(
+          'Missing required fields',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const user = await this.prismaService.user.findUnique({
+        where: { email },
+      });
+      if (!user) {
+        throw new HttpException(
+          'User with this email does not exist',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (newPassword !== confirmNewPassword) {
+        throw new HttpException(
+          'Passwords do not match',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const hashedPassword = await hashPassword(newPassword);
+
+      await this.prismaService.user.update({
+        where: { email },
+        data: { password: hashedPassword },
+      });
+
+      return {
+        success: true,
+        message: 'Password updated successfully',
+        data: { email },
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to update password: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

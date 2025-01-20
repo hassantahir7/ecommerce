@@ -8,6 +8,7 @@ import { JwtGuard } from './jwt/jwt.guard';
 import { ApiBody, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
+import { ForgetPasswordDto } from './dto/forget-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,5 +44,11 @@ export class AuthController {
   @Post(AuthEndpoints.sendOTP)
   sendOtp(@Body() sendOTPDto: SendOTPDto) {
     return this.authService.sendOtp(sendOTPDto);
+  }
+
+  @Post(AuthEndpoints.updatePassword)
+  @ApiOperation({ summary: 'Update user password' })
+  async updatePassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
+    return this.authService.updatePassword(forgetPasswordDto);
   }
 }
