@@ -63,61 +63,47 @@ export class ProductsService {
     type?: string;
     categoryName?: string;
     color?: string;
-    style?: string
+    style?: string;
     sortOrder?: 'asc' | 'desc';
   }) {
     try {
       const colorsArray = filters?.color ? filters.color.split(',') : [];
-
+  
+      const whereConditions: any[] = [
+        { is_Active: true, is_Deleted: false },
+        filters?.type && {
+          category: { gender: filters.type.toUpperCase() },
+        },
+        filters?.categoryName && {
+          category: { name: { contains: filters.categoryName, mode: 'insensitive' } },
+        },
+        filters?.style && {
+          Variants: { some: { style: { contains: filters.style, mode: 'insensitive' } } },
+        },
+        colorsArray.length > 0 && {
+          Variants: { some: { color: { in: colorsArray, mode: 'insensitive' } } },
+        },
+      ];
+  
+      const validWhereConditions = whereConditions.filter(Boolean);
+  
       const products = await this.prismaService.product.findMany({
         where: {
-          is_Active: true,
-          is_Deleted: false,
-          ...(filters?.type && {
-            category: {
-              gender: filters.type.toUpperCase(),
-            },
-          }),
-          ...(filters?.categoryName && {
-            category: {
-              name: { contains: filters.categoryName, mode: 'insensitive' },
-            },
-          }),
-
-          ...(filters?.style && {
-            Variants: {
-              some: {
-                style: { contains: filters.style, mode: 'insensitive' },
-              }
-            },
-          }),
-          ...(colorsArray.length > 0 && {
-            Variants: {
-              some: {
-                color: {
-                  in: colorsArray,
-                  mode: 'insensitive',
-                },
-              },
-            },
-          }),
+          AND: validWhereConditions,
         },
         include: {
-          Variants: true,
+          Variants: true, 
           category: true,
         },
         orderBy: [
-          {
-            basePrice: filters?.sortOrder || 'asc',
-          },
+          { basePrice: filters?.sortOrder || 'asc' },
         ],
       });
-
+  
       const processedProducts = products.map((product) => {
         let colorsAvailable = product.Variants.map((variant) => variant.color);
-
         let uniqueColors: string[] = [];
-
+  
         colorsAvailable.forEach((color) => {
           if (color.includes('&')) {
             const duotoneColors = color.split('&').map((col) => col.trim());
@@ -128,20 +114,20 @@ export class ProductsService {
             });
           } else {
             if (!uniqueColors.includes(color)) {
-              uniqueColors.push(color); // Add only if not already added
+              uniqueColors.push(color);
             }
           }
         });
-
+  
         const totalColors = uniqueColors.length;
-
+  
         return {
           ...product,
           colorsAvailable: uniqueColors,
           totalColors,
         };
       });
-
+  
       return {
         success: true,
         message: 'Products retrieved successfully',
@@ -154,6 +140,8 @@ export class ProductsService {
       );
     }
   }
+  
+  
 
   async findColorsByCategory(data?: { categoryName: string }) {
     try {
