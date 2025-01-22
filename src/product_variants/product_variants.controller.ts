@@ -4,6 +4,7 @@ import { CreateProductVariantsDto } from './dto/create-product_variant.dto';
 import { UpdateProductVariantsDto } from './dto/update-product_variant.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProductVariantsEndpoints } from 'src/common/endpoints/product-variants.endpoint';
+import { VariantsByProductDto } from './dto/variants-by-product.dto';
 
 @ApiTags('Product Variant')
 @Controller('product-variants')
@@ -14,6 +15,12 @@ export class ProductVariantsController {
   @ApiOperation({ summary: 'Create a new product variant' })
   async create(@Body() createProductVariantDto: CreateProductVariantsDto) {
     return this.productVariantService.create(createProductVariantDto);
+  }
+
+  @Get(ProductVariantsEndpoints.findAllVariantsOfAProduct)
+  @ApiOperation({ summary: 'Retrieve all product variants of a product' })
+  async findAllVariantsOfAProduct(@Body() variantsByProductDto: VariantsByProductDto) {
+    return this.productVariantService.findAllVariantsOfAProduct(variantsByProductDto);
   }
 
   @Get(ProductVariantsEndpoints.findAll)

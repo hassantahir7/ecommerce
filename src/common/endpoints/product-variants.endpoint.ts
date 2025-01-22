@@ -4,6 +4,7 @@ enum ProductVariantsEndpoints {
     findOne = '/:id',
     update = '/:id',
     remove = '/:id',
+    findAllVariantsOfAProduct = '/allVariantsOfAProduct'
   }
   
   export { ProductVariantsEndpoints };

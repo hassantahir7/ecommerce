@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductVariantsDto } from './dto/create-product_variant.dto';
 import { UpdateProductVariantsDto } from './dto/update-product_variant.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { VariantsByProductDto } from './dto/variants-by-product.dto';
 
 @Injectable()
 export class ProductVariantsService {
@@ -34,6 +35,26 @@ export class ProductVariantsService {
     try {
       const variants = await this.prismaService.productVariant.findMany({
         where: { is_Active: true, is_Deleted: false },
+      });
+
+      return {
+        success: true,
+        message: 'Product variants retrieved successfully',
+        data: variants,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to retrieve product variants: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+
+  async findAllVariantsOfAProduct(variantsByProductDto: VariantsByProductDto) {
+    try {
+      const variants = await this.prismaService.productVariant.findMany({
+        where: { productId: variantsByProductDto.productId,is_Active: true, is_Deleted: false },
       });
 
       return {

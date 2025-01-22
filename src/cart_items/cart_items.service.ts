@@ -12,67 +12,49 @@ export class CartItemsService {
   async create(createCartItemDto: CreateCartItemDto, userId) {
     const { variantId, quantity } = createCartItemDto;
   
-    try {
-      let existingCart = await this.prismaService.cart.findUnique({
+    const [existingCart, variant] = await Promise.all([
+      this.prismaService.cart.findUnique({
         where: { userId: userId },
-      });
-  
-      if (!existingCart) {
-        existingCart = await this.prismaService.cart.create({
-          data: {
-            userId: userId, 
-          },
-        });
-      }
-  
-      const variant = await this.prismaService.productVariant.findUnique({
+      }),
+      this.prismaService.productVariant.findUnique({
         where: { variantId: variantId },
-      });
+      }),
+    ]);
   
-      if (!variant) {
-        throw new HttpException('Variant not found', HttpStatus.NOT_FOUND);
-      }
-  
-      if (variant.stock < quantity) {
-        throw new HttpException('Insufficient stock', HttpStatus.BAD_REQUEST);
-      }
-      
-      const checkExistingVariant = await this.prismaService.cart.findUnique({
-        where: { userId: userId, 
-          CartItems: {some: {variantId: variantId}}
-        },
-      });
-
-      if(checkExistingVariant){
-        throw new HttpException('Item already exists in cart', HttpStatus.CONFLICT);
-      }
-
-  
-  
-      const cartItem = await this.prismaService.cartItem.create({
-        data: {
-          cartId: existingCart.cartId, 
-          variantId,
-          quantity,
-        },
-      });
-
-      await this.prismaService.productVariant.update({
-        where: { variantId: variantId },
-        data: { stock: { decrement: quantity } },
-      })
-  
-      return {
-        success: true,
-        message: 'Cart item created successfully',
-        data: cartItem,
-      };
-    } catch (error) {
-      throw new HttpException(
-        `Failed to create cart item: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    if (!variant) {
+      throw new HttpException('Variant not found', HttpStatus.NOT_FOUND);
     }
+  
+    if (variant.stock < quantity) {
+      throw new HttpException('Insufficient stock', HttpStatus.BAD_REQUEST);
+    }
+  
+    const existingVariant = await this.prismaService.cartItem.findFirst({
+      where: { variantId, cartId: existingCart?.cartId },
+    });
+  
+    if (existingVariant) {
+      throw new HttpException('Item already exists in cart', HttpStatus.CONFLICT);
+    }
+  
+    const cartItem = await this.prismaService.cartItem.create({
+      data: {
+        cartId: existingCart?.cartId || (await this.prismaService.cart.create({ data: { userId } })).cartId,
+        variantId,
+        quantity,
+      },
+    });
+  
+    await this.prismaService.productVariant.update({
+      where: { variantId: variantId },
+      data: { stock: { decrement: quantity } },
+    });
+  
+    return {
+      success: true,
+      message: 'Cart item created successfully',
+      data: cartItem,
+    };
   }
   
 
