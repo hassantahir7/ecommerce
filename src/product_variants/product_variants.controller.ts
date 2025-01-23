@@ -17,7 +17,7 @@ export class ProductVariantsController {
     return this.productVariantService.create(createProductVariantDto);
   }
 
-  @Get(ProductVariantsEndpoints.findAllVariantsOfAProduct)
+  @Post(ProductVariantsEndpoints.findAllVariantsOfAProduct)
   @ApiOperation({ summary: 'Retrieve all product variants of a product' })
   async findAllVariantsOfAProduct(@Body() variantsByProductDto: VariantsByProductDto) {
     return this.productVariantService.findAllVariantsOfAProduct(variantsByProductDto);

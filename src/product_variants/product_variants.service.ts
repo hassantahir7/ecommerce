@@ -54,13 +54,31 @@ export class ProductVariantsService {
   async findAllVariantsOfAProduct(variantsByProductDto: VariantsByProductDto) {
     try {
       const variants = await this.prismaService.productVariant.findMany({
-        where: { productId: variantsByProductDto.productId,is_Active: true, is_Deleted: false },
+        where: {
+          productId: variantsByProductDto.productId,
+          is_Active: true,
+          is_Deleted: false,
+        },
       });
+  
+      const groupedVariants = variants.reduce((acc, variant) => {
+        if (!acc[variant.color]) {
+          acc[variant.color] = [];
+        }
+        acc[variant.color].push(variant);
+        return acc;
+      }, {});
+  
 
+      const result = Object.entries(groupedVariants).map(([color, variants]) => ({
+        color,
+        variants,
+      }));
+  
       return {
         success: true,
         message: 'Product variants retrieved successfully',
-        data: variants,
+        data: result,
       };
     } catch (error) {
       throw new HttpException(
@@ -69,6 +87,7 @@ export class ProductVariantsService {
       );
     }
   }
+  
 
   async findOne(id: string) {
     try {
