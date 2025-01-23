@@ -34,7 +34,20 @@ export class CartItemsService {
     });
   
     if (existingVariant) {
-      throw new HttpException('Item already exists in cart', HttpStatus.CONFLICT);
+      await this.prismaService.cartItem.update({
+        where: { cartItemId: existingVariant.cartItemId },
+        data: { quantity },
+      })
+      const stock =  quantity - existingVariant.quantity ;
+       await this.prismaService.productVariant.update({
+      where: { variantId: variantId },
+      data: { stock: { decrement: stock } },
+    });
+      return {
+        success: true,
+        message: 'Cart item updated successfully',
+        data: existingVariant,
+      };
     }
   
     const cartItem = await this.prismaService.cartItem.create({
