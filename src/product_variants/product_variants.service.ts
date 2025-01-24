@@ -59,6 +59,9 @@ export class ProductVariantsService {
           is_Active: true,
           is_Deleted: false,
         },
+        include: {
+          product: true
+        }
       });
   
       const groupedVariants = variants.reduce((acc, variant) => {
