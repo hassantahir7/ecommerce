@@ -35,6 +35,13 @@ export class ProductVariantsService {
     try {
       const variants = await this.prismaService.productVariant.findMany({
         where: { is_Active: true, is_Deleted: false },
+        include: {
+          product:{
+            select: {
+              name: true,
+            }
+          }
+        }
       });
 
       return {
