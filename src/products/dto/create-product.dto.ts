@@ -27,14 +27,6 @@ export class CreateProductDto {
   categoryId: string;
 
   @ApiProperty({
-    example: 'Round-neck T-shirt',
-    description: 'The style of the product',
-  })
-  @IsString()
-  @IsOptional()
-  style?: string;
-
-  @ApiProperty({
     example: 'Base price of product.',
     description: 'The price of the product could be 20',
   })
