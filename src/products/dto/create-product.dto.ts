@@ -1,5 +1,6 @@
 import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { ProductType } from '@prisma/client';
 
 export class CreateProductDto {
   @ApiProperty({
@@ -35,24 +36,25 @@ export class CreateProductDto {
 
   @ApiProperty({
     example: true,
-    description: 'Indicates if the product is clothing',
+    description: 'Indicates if the product is limited edition',
   })
   @IsBoolean()
   @IsOptional()
-  isClothing?: boolean;
+  limitedAddition?: boolean;
 
   @ApiProperty({
-    example: false,
-    description: 'Indicates if the product is jewelry',
+    example: "CLOTHES",
+    description: 'Indicates the product type.',
   })
-  @IsBoolean()
+  @IsEnum(ProductType)
   @IsOptional()
-  isJewelry?: boolean;
+  productType?: ProductType;
 
   @ApiProperty({
     example: '100% Cotton',
     description: 'Composition of the product',
   })
+
   @IsString()
   @IsOptional()
   composition?: string;
