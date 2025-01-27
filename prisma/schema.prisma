@@ -57,8 +57,7 @@ model Product {
   categoryId      String
   basePrice       Float?
   category        Categories       @relation(fields: [categoryId], references: [categoryId], onDelete: Cascade)
-  isClothing      Boolean          @default(false)
-  isJewelry       Boolean          @default(false)
+  productType     ProductType      @default(CLOTHES)
   composition     String?
   limitedAddition Boolean          @default(false)
   weight          String?
@@ -196,4 +195,12 @@ enum Gender {
   MEN
   WOMEN
   UNISEX
+  OTHER
+}
+
+enum ProductType {
+  CLOTHES
+  FOOD
+  JEWELRY
+  OTHER
 }
