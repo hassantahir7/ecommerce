@@ -12,7 +12,6 @@ export class OrderService {
   ) {}
 
   async createOrder(createOrderDto: CreateOrderDto, userId: string) {
-    
     const cart = await this.cartService.findByUserId(userId);
 
     if (!cart || !cart.data.CartItems || cart.data.CartItems.length === 0) {
@@ -71,7 +70,7 @@ export class OrderService {
 
     await this.prismaService.cart.delete({
       where: { userId },
-    })
+    });
 
     return {
       success: true,
@@ -83,6 +82,59 @@ export class OrderService {
   async getOrderByUserId(userId: string) {
     const orders = await this.prismaService.order.findMany({
       where: { userId },
+      include: {
+        orderItems: {
+          include: {
+            variant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Orders fetched successfully',
+      data: orders,
+    };
+  }
+
+  async getAllCustomersWithOrders() {
+    const customers = await this.prismaService.user.findMany({
+      where: {
+        Order: {
+          some: {}, 
+        },
+      },
+      include: {
+        Order: {
+          include: {
+            orderItems: {
+              include: {
+                variant: {
+                  include: {
+                    product: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Customers with orders fetched successfully',
+      data: customers,
+    };
+  }
+
+  async getAllOrders() {
+    const orders = await this.prismaService.order.findMany({
       include: {
         orderItems: {
           include: {

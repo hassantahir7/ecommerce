@@ -1,7 +1,9 @@
 enum OrderEndpoints {
     create = '',
+    getAllOrders = '',
     findUserAllOrders = '/user',
-    findOne = ':orderId'
+    findOne = ':orderId',
+    getAllCustomersWithOrders = 'getAllCustomersWithOrders'
   }
   
   export { OrderEndpoints };

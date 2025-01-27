@@ -25,6 +25,22 @@ export class OrderController {
     return this.orderService.getOrderByUserId(req.user.userId);
   }
 
+
+  @Get(OrderEndpoints.getAllOrders)
+  @ApiOperation({ summary: 'Get all orders' })
+  @ApiBearerAuth()
+  async getAllOrders(@Req() req) {
+    return this.orderService.getAllOrders();
+  }
+
+  @Get(OrderEndpoints.getAllCustomersWithOrders)
+  @ApiOperation({ summary: 'Get all customers with orders!' })
+  @ApiBearerAuth()
+  async getAllCustomersWithOrders(@Req() req) {
+    return this.orderService.getAllCustomersWithOrders();
+  }
+
+
   @UseGuards(JwtGuard)
   @Get(':orderId')
   @ApiOperation({ summary: 'Get order details by order ID' })
