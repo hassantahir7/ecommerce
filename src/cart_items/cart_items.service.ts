@@ -155,9 +155,8 @@ export class CartItemsService {
         throw new HttpException('Cart item not found', HttpStatus.NOT_FOUND);
       }
 
-      const deletedCartItem = await this.prismaService.cartItem.update({
+      const deletedCartItem = await this.prismaService.cartItem.delete({
         where: { cartItemId: id },
-        data: { is_Deleted: true },
       });
 
       await this.prismaService.productVariant.update({
