@@ -137,6 +137,10 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
+    if (user.is_emailVerified === false) {
+      throw new NotFoundException('User not verified');
+    }
+
     if (user.is_Deleted === true) {
       throw new NotFoundException('User is deleted');
     }
@@ -155,7 +159,11 @@ export class AuthService {
       data: {
         access_token: token,
         name: user.name,
+        address: user.address,
+        email: user.email,
+        contactNumber: user.contactNumber,
         profilePic: user.profilePic,
+        subscription: user.subscription,
       },
     };
   }
