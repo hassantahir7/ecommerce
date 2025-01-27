@@ -160,6 +160,11 @@ export class CartItemsService {
         data: { is_Deleted: true },
       });
 
+      await this.prismaService.productVariant.update({
+        where: { variantId: existingCartItem.variantId },
+        data: { stock: { increment: existingCartItem.quantity } },
+      });
+
       return {
         success: true,
         message: 'Cart item removed successfully',
