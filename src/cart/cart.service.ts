@@ -37,39 +37,40 @@ export class CartService {
         where: { userId },
         include: {
           CartItems: {
+            where: {
+              is_Deleted: false,
+            },
             include: {
               variant: {
                 include: {
                   product: true,
                 },
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       });
-  
+
       if (!cart) {
         throw new HttpException(
           'Cart not found for the user',
           HttpStatus.NOT_FOUND,
         );
       }
-  
 
       const totalProductCount = cart.CartItems.length;
       const totalPrice = cart.CartItems.reduce(
-        (acc, item) => acc + (item.quantity * item.variant.price),
-        0
+        (acc, item) => acc + item.quantity * item.variant.price,
+        0,
       );
-  
- 
+
       return {
         success: true,
         message: 'Cart found',
         data: {
           ...cart,
           totalProductCount,
-          totalPrice: totalPrice.toFixed(2),  
+          totalPrice: totalPrice.toFixed(2),
         },
       };
     } catch (error) {
@@ -79,9 +80,6 @@ export class CartService {
       );
     }
   }
-  
-
-
 
   // Delete a cart by setting is_Deleted to true
   async delete(cartId: string) {
