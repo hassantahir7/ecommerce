@@ -9,12 +9,14 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProductsEndpoints } from 'src/common/endpoints/products.endpoint';
+import { FavoriteProductDto } from './dto/add-to-favorite.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -25,6 +27,19 @@ export class ProductsController {
   @ApiOperation({ summary: 'Create a new product' })
   async create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
+  }
+  
+
+  @Post(ProductsEndpoints.addToFavorite)
+  @ApiOperation({ summary: 'Add product to favorites' })
+  async addToFavorite(@Body() favoriteProductDto: FavoriteProductDto, @Req() req) {
+    return this.productsService.addToFavorite(favoriteProductDto, req.user.userId || req.user.id);
+  }
+
+  @Post(ProductsEndpoints.getUserFavoriteItems)
+  @ApiOperation({ summary: 'Get favorite products!' })
+  async getUserFavoriteItems(@Req() req) {
+    return this.productsService.getUserFavoriteItems(req.user.userId || req.user.id);
   }
 
   @Get(ProductsEndpoints.findAll)

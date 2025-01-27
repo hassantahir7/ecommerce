@@ -41,19 +41,19 @@ export class RegisterDto {
   })
   password: string;
 
-  // @ApiProperty({
-  //   example: '+923001234567',
-  //   description:
-  //     'Optional contact number in the format +923001234567 or 03001234567, 10-15 digits',
-  //   required: false,
-  // })
-  // @IsString()
-  // @IsOptional()
-  // @Matches(/^\+?\d{10,15}$/, {
-  //   message:
-  //     'Invalid Phone Number: Phone Number should be in the format +923001234567 or 03001234567 and between 10-15 digits',
-  // })
-  // contactNumber: string;
+  @ApiProperty({
+    example: '+923001234567',
+    description:
+      'Optional contact number in the format +923001234567 or 03001234567, 10-15 digits',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  @Matches(/^\+?\d{10,15}$/, {
+    message:
+      'Invalid Phone Number: Phone Number should be in the format +923001234567 or 03001234567 and between 10-15 digits',
+  })
+  contactNumber: string;
 
   // @ApiProperty({
   //   example: '1995-08-15',
@@ -70,6 +70,16 @@ export class RegisterDto {
   })
   @IsOptional()
   subscription: boolean;
+
+
+   @ApiProperty({
+    example: "134 E bLock Canal Gardens Lahore Pakistan",
+    description: 'Address of  the user.',
+    required: false,
+  })
+  @IsOptional()
+  address: string;
+
 
 
   // @ApiProperty({

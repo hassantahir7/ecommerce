@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { FavoriteProductDto } from './dto/add-to-favorite.dto';
 
 @Injectable()
 export class ProductsService {
@@ -32,6 +33,65 @@ export class ProductsService {
       );
     }
   }
+
+
+  async addToFavorite(favoriteProductDto:FavoriteProductDto, userId: string ) {
+    try {
+      if (!favoriteProductDto) {
+        throw new HttpException(
+          'No product data provided',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const createProduct = await this.prismaService.wishlist.create({
+        data: { ...favoriteProductDto, userId },
+      });
+
+      return {
+        success: true,
+        message: 'Product added to wishlist successfully!',
+        data: createProduct,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to create product: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getUserFavoriteItems(userId: string) {
+    if (!userId) {
+      throw new HttpException('No user ID provided', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const wishlist = await this.prismaService.wishlist.findMany({
+        where: { userId },
+        include: {
+          product: {
+            include: {
+              Variants: true,
+            },
+          },
+        },
+      });
+
+      return {
+        success: true,
+        message: 'User favorite items retrieved successfully',
+        data: wishlist,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to retrieve user favorite items: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+
 
   async getProductsByCategory(categoryId: string) {
     if (!categoryId) {

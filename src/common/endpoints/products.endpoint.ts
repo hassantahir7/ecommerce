@@ -6,7 +6,9 @@ enum ProductsEndpoints {
     remove = '/:id',
     findColorsByCategory = '/findColorsByCategory',
     searchProducts = '/searchProducts',
-    retrieveLimitedEditionProducts = 'retrieveLimitedEditionProducts'
+    retrieveLimitedEditionProducts = 'retrieveLimitedEditionProducts',
+    addToFavorite = 'addToFavorite',
+    getUserFavoriteItems = 'getUserFavoriteItems'
   }
   
   export { ProductsEndpoints };
