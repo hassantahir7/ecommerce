@@ -33,7 +33,7 @@ export class CartItemsService {
       where: { variantId, cartId: existingCart?.cartId },
     });
   
-    if (existingVariant) {
+    if (existingVariant && existingCart) {
       await this.prismaService.cartItem.update({
         where: { cartItemId: existingVariant.cartItemId },
         data: { quantity },
