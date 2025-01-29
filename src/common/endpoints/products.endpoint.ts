@@ -1,6 +1,6 @@
 enum ProductsEndpoints {
     create = '',
-    findAll = '',
+    findAll = 'all',
     findOne = '/:id',
     update = '/:id',
     remove = '/:id',

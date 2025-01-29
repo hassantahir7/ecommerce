@@ -151,7 +151,7 @@ export class ProductsService {
   }
 
   async findAll(
-    userId: string,
+    userId?: string, // Make userId optional
     filters?: {
       type?: string;
       categoryName?: string;
@@ -198,13 +198,15 @@ export class ProductsService {
         orderBy: [{ basePrice: filters?.sortOrder || 'asc' }],
       });
   
-      // Fetch wishlist items for the user
-      const wishlist = await this.prismaService.wishlist.findMany({
-        where: { userId },
-        select: { productId: true },
-      });
+      let wishlistProductIds = new Set<string>();
   
-      const wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+      if (userId) {
+        const wishlist = await this.prismaService.wishlist.findMany({
+          where: { userId },
+          select: { productId: true },
+        });
+        wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+      }
   
       const processedProducts = products.map((product) => {
         let colorsAvailable = product.Variants.map((variant) => variant.color);
@@ -226,13 +228,13 @@ export class ProductsService {
         });
   
         const totalColors = uniqueColors.length;
-        const isInWishlist = wishlistProductIds.has(product.productId);
+        const isInWishlist = userId ? wishlistProductIds.has(product.productId) : undefined;
   
         return {
           ...product,
           colorsAvailable: uniqueColors,
           totalColors,
-          isInWishlist, 
+          ...(userId && { isInWishlist }), 
         };
       });
   
@@ -248,6 +250,7 @@ export class ProductsService {
       );
     }
   }
+  
   
 
   async findColorsByCategory(data?: { categoryName: string }) {

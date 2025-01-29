@@ -53,7 +53,7 @@ export class ProductsController {
     );
   }
 
-  @Get(ProductsEndpoints.findAll)
+  @Post(ProductsEndpoints.findAll)
   @ApiOperation({
     summary:
       'Retrieve all products with optional filters (type, category, color)',
@@ -61,7 +61,7 @@ export class ProductsController {
       'Retrieve products filtered by type, category name, or color. All filters are optional.',
   })
   async findAll(
-    @Req() req,
+    @Body('userId') userId,
     @Query('type') type?: string,
     @Query('categoryName') categoryName?: string,
     @Query('color') color?: string,
@@ -76,7 +76,7 @@ export class ProductsController {
       style,
       sortOrder,
     }
-    return this.productsService.findAll(req.user.userId || req.user.id, filter);
+    return this.productsService.findAll(userId, filter);
   }
 
   @Get(ProductsEndpoints.findColorsByCategory)
