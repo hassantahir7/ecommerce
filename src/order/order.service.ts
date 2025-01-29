@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CartService } from '../cart/cart.service';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 
 @Injectable()
 export class OrderService {
@@ -153,6 +154,17 @@ export class OrderService {
       message: 'Orders fetched successfully',
       data: orders,
     };
+  }
+
+  async updateOrderStatus(updateOrderStatusDto: UpdateOrderStatusDto){
+    await this.prismaService.order.update({
+      where:{
+        orderId: updateOrderStatusDto.orderId
+      },
+      data:{
+        status: updateOrderStatusDto.status
+      }
+    })
   }
 
   async getOrderById(orderId: string) {
