@@ -16,6 +16,7 @@ import { LogInDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -303,5 +304,39 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  private exclude<User, Key extends keyof User>(user: User, keys: Key[]): Omit<User, Key> {
+    return Object.fromEntries(Object.entries(user).filter(([key]) => !keys.includes(key as Key))) as Omit<User, Key>;
+  }
+
+  async getUser(userId: string) {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { userId },
+      });
+
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+
+      return { success: true, data: this.exclude(user, ['password']) };
+    } catch (error) {
+      throw new HttpException(`Failed to get user: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async updateUser(userId: string, updateUserDto: UpdateUserDto) {
+    const existingUser = await this.prismaService.user.findUnique({ where: { userId } });
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = await this.prismaService.user.update({
+      where: { userId },
+      data: { ...updateUserDto },
+    });
+
+    return { success: true, message: 'User updated successfully', data: this.exclude(updatedUser, ['password']) };
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LogInDto } from './dto/login.dto';
@@ -9,6 +9,7 @@ import { ApiBody, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -19,6 +20,20 @@ export class AuthController {
   @Post(AuthEndpoints.register)
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
+  }
+
+  @ApiOperation({ summary: 'Find one user' })
+  @UseGuards(JwtGuard)
+  @Get(AuthEndpoints.getOneUser)
+  async getUser(@Req() req) {
+    return this.authService.getUser(req.user.id || req.user.userId);
+  }
+
+  @ApiOperation({ summary: 'Update the user' })
+  @UseGuards(JwtGuard)
+  @Patch(AuthEndpoints.updateUser)
+  async updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto) {
+    return this.authService.updateUser(req.user.id || req.user.userId, updateUserDto);
   }
 
   @ApiOperation({ summary: 'Verify a user by email and verification code' })
