@@ -13,6 +13,7 @@ import { CartItemsModule } from './cart_items/cart_items.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
+import { DiscountModule } from './discount/discount.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { PaymentModule } from './payment/payment.module';
     CartModule,
     OrderModule,
     PaymentModule,
+    DiscountModule,
   ],
   controllers: [AppController],
   providers: [AppService],

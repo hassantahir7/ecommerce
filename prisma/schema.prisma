@@ -153,6 +153,16 @@ model Order {
   Payment       Payment[]
 }
 
+model discount {
+  discountId       String        @id @default(uuid())
+  promoCode        String
+  percentage       String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  is_Active     Boolean       @default(true)
+  is_Deleted    Boolean       @default(false)
+}
+
 model OrderItem {
   orderItemId String         @id @default(uuid())
   orderId     String

@@ -30,20 +30,27 @@ export class ProductsController {
   async create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
-  
 
   @UseGuards(JwtGuard)
   @Post(ProductsEndpoints.addToFavorite)
   @ApiOperation({ summary: 'Add product to favorites' })
-  async addToFavorite(@Body() favoriteProductDto: FavoriteProductDto, @Req() req) {
-    return this.productsService.addOrRemoveFromFavorite(favoriteProductDto, req.user.userId || req.user.id);
+  async addToFavorite(
+    @Body() favoriteProductDto: FavoriteProductDto,
+    @Req() req,
+  ) {
+    return this.productsService.addOrRemoveFromFavorite(
+      favoriteProductDto,
+      req.user.userId || req.user.id,
+    );
   }
 
   @UseGuards(JwtGuard)
   @Post(ProductsEndpoints.getUserFavoriteItems)
   @ApiOperation({ summary: 'Get favorite products!' })
   async getUserFavoriteItems(@Req() req) {
-    return this.productsService.getUserFavoriteItems(req.user.userId || req.user.id);
+    return this.productsService.getUserFavoriteItems(
+      req.user.userId || req.user.id,
+    );
   }
 
   @Get(ProductsEndpoints.findAll)
@@ -74,8 +81,8 @@ export class ProductsController {
     summary: 'Retrieve all colors of products',
     description: 'Retrieve colors of products for filter.',
   })
-  async findColorsByCategory(@Query('categoryName') categoryName?: string, ) {
-    return this.productsService.findColorsByCategory({categoryName,});
+  async findColorsByCategory(@Query('categoryName') categoryName?: string) {
+    return this.productsService.findColorsByCategory({ categoryName });
   }
 
   @Get(ProductsEndpoints.searchProducts)
@@ -96,8 +103,14 @@ export class ProductsController {
 
   @Get(ProductsEndpoints.retrieveLimitedEditionProducts)
   @ApiOperation({ summary: 'Retrieve Limited Edition Products' })
-  async getLimitedEditionProducts() {
-    return this.productsService.getLimitedEditionProducts();
+  async getLimitedEditionProducts(
+    @Query('type') type?: string,
+    @Query('color') color?: string,
+    @Query('style') style?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+  ) {
+    const filter = { type, color, style, sortOrder };
+    return this.productsService.getLimitedEditionProducts(filter);
   }
 
   @Patch(ProductsEndpoints.update)
