@@ -35,7 +35,7 @@ export class ProductsService {
   }
 
 
-  async addToFavorite(favoriteProductDto:FavoriteProductDto, userId: string ) {
+  async addOrRemoveFromFavorite(favoriteProductDto: FavoriteProductDto, userId: string) {
     try {
       if (!favoriteProductDto) {
         throw new HttpException(
@@ -43,11 +43,31 @@ export class ProductsService {
           HttpStatus.BAD_REQUEST,
         );
       }
-
+  
+     
+      const existingFavorite = await this.prismaService.wishlist.findFirst({
+        where: {
+          userId,
+          productId: favoriteProductDto.productId, 
+        },
+      });
+  
+      if (existingFavorite) {
+        await this.prismaService.wishlist.delete({
+          where: { wishlistId: existingFavorite.wishlistId },
+        });
+  
+        return {
+          success: true,
+          message: 'Product removed from wishlist successfully!',
+          data: null,
+        };
+      }
+  
       const createProduct = await this.prismaService.wishlist.create({
         data: { ...favoriteProductDto, userId },
       });
-
+  
       return {
         success: true,
         message: 'Product added to wishlist successfully!',
@@ -55,11 +75,14 @@ export class ProductsService {
       };
     } catch (error) {
       throw new HttpException(
-        `Failed to create product: ${error.message}`,
+        `Failed to update wishlist: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+  
+
+
 
   async getUserFavoriteItems(userId: string) {
     if (!userId) {
@@ -235,6 +258,30 @@ export class ProductsService {
         select: { color: true },
       });
 
+      const limitedEditionRegularColors = await this.prismaService.productVariant.findMany({
+        where: {
+          product: {
+            is_Active: true,
+            is_Deleted: false,
+            limitedAddition: true
+          },
+          isDuotone: false
+        },
+        select: { color: true },
+      });
+
+      const limitedEditionDuotoneColors = await this.prismaService.productVariant.findMany({
+        where: {
+          product: {
+            is_Active: true,
+            is_Deleted: false,
+            limitedAddition: true
+          },
+          isDuotone: true
+        },
+        select: { color: true },
+      });
+
       const style = await this.prismaService.productVariant.findMany({
         where: {
           product: {
@@ -255,6 +302,15 @@ export class ProductsService {
         .map((variant) => variant.color)
         .filter((color): color is string => !!color);
 
+        const LEDuotoneColors = limitedEditionDuotoneColors
+        .map((index) => index.color)
+        .filter((color): color is string => !!color);
+
+        const LERegularColors = limitedEditionRegularColors
+        .map((index) => index.color)
+        .filter((color): color is string => !!color);
+
+
         const regularStyles = style
         .map((index) => index.style)
         .filter((style): style is string => !!style);
@@ -263,10 +319,12 @@ export class ProductsService {
         success: true,
         message: 'Colors retrieved successfully for the category',
         data: {
-          categoryName,
+          categoryName: categoryName || "Limited Edition",
           colors: {
             duotone: duotoneColors,
             regular: regularColors,
+            limitedEditionRegularColors: LERegularColors,
+            limitedEditionDuotoneColors: LEDuotoneColors,
           },
           style: regularStyles,
           totalColors: {
@@ -290,7 +348,8 @@ export class ProductsService {
         include: { Variants: true },
       });
 
-      if (!products) {
+      console.log(products.length)
+      if (products.length === 0) {
         throw new HttpException(
           'No limited edition products found',
           HttpStatus.NOT_FOUND,

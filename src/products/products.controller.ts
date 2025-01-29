@@ -36,7 +36,7 @@ export class ProductsController {
   @Post(ProductsEndpoints.addToFavorite)
   @ApiOperation({ summary: 'Add product to favorites' })
   async addToFavorite(@Body() favoriteProductDto: FavoriteProductDto, @Req() req) {
-    return this.productsService.addToFavorite(favoriteProductDto, req.user.userId || req.user.id);
+    return this.productsService.addOrRemoveFromFavorite(favoriteProductDto, req.user.userId || req.user.id);
   }
 
   @UseGuards(JwtGuard)

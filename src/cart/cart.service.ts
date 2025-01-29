@@ -33,7 +33,7 @@ export class CartService {
   // Get cart by userId
   async findByUserId(userId: string) {
     try {
-      const cart = await this.prismaService.cart.findUnique({
+      const cart = await this.prismaService.cart.findFirst({
         where: { userId },
         include: {
           CartItems: {
@@ -50,20 +50,21 @@ export class CartService {
           },
         },
       });
-
-      if (!cart) {
+  
+      if (!cart || !cart.CartItems || cart.CartItems.length === 0) {
         throw new HttpException(
           'Cart not found for the user',
           HttpStatus.NOT_FOUND,
         );
       }
 
+  
       const totalProductCount = cart.CartItems.length;
-      const totalPrice = cart.CartItems.reduce(
-        (acc, item) => acc + item.quantity * item.variant.price,
+      const totalPrice = cart.CartItems?.reduce(
+        (acc, item) => acc + (item?.quantity ?? 0) * (item?.variant?.price ?? 0),
         0,
       );
-
+  
       return {
         success: true,
         message: 'Cart found',
@@ -74,12 +75,14 @@ export class CartService {
         },
       };
     } catch (error) {
+  
       throw new HttpException(
         `Failed to find cart: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.status,
       );
     }
   }
+  
 
   // Delete a cart by setting is_Deleted to true
   async delete(cartId: string) {
