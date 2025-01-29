@@ -58,10 +58,16 @@ export class ProductsService {
           where: { wishlistId: existingFavorite.wishlistId },
         });
 
+        const countFavorite = await this.prismaService.wishlist.findMany({
+          where: {
+            userId,
+          },
+        });
+
         return {
           success: true,
           message: 'Product removed from wishlist successfully!',
-          data: null,
+          data: countFavorite,
         };
       }
 
@@ -69,10 +75,16 @@ export class ProductsService {
         data: { ...favoriteProductDto, userId },
       });
 
+      const countFavorite = await this.prismaService.wishlist.findMany({
+        where: {
+          userId,
+        },
+      });
+
       return {
         success: true,
         message: 'Product added to wishlist successfully!',
-        data: createProduct,
+        data: {createProduct, countFavorite},
       };
     } catch (error) {
       throw new HttpException(
@@ -99,10 +111,16 @@ export class ProductsService {
         },
       });
 
+      const countFavorite = await this.prismaService.wishlist.findMany({
+        where: {
+          userId,
+        },
+      });
+
       return {
         success: true,
         message: 'User favorite items retrieved successfully',
-        data: wishlist,
+        data: {wishlist, countFavorite},
       };
     } catch (error) {
       throw new HttpException(
