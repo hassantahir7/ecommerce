@@ -61,19 +61,22 @@ export class ProductsController {
       'Retrieve products filtered by type, category name, or color. All filters are optional.',
   })
   async findAll(
+    @Req() req,
     @Query('type') type?: string,
     @Query('categoryName') categoryName?: string,
     @Query('color') color?: string,
     @Query('style') style?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    
   ) {
-    return this.productsService.findAll({
+    const filter = {
       type,
       categoryName,
       color,
       style,
       sortOrder,
-    });
+    }
+    return this.productsService.findAll(req.user.userId || req.user.id, filter);
   }
 
   @Get(ProductsEndpoints.findColorsByCategory)

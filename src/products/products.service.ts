@@ -150,16 +150,19 @@ export class ProductsService {
     }
   }
 
-  async findAll(filters?: {
-    type?: string;
-    categoryName?: string;
-    color?: string;
-    style?: string;
-    sortOrder?: 'asc' | 'desc';
-  }) {
+  async findAll(
+    userId: string,
+    filters?: {
+      type?: string;
+      categoryName?: string;
+      color?: string;
+      style?: string;
+      sortOrder?: 'asc' | 'desc';
+    },
+  ) {
     try {
       const colorsArray = filters?.color ? filters.color.split(',') : [];
-
+  
       const whereConditions: any[] = [
         { is_Active: true, is_Deleted: false },
         filters?.type && {
@@ -181,9 +184,9 @@ export class ProductsService {
           },
         },
       ];
-
+  
       const validWhereConditions = whereConditions.filter(Boolean);
-
+  
       const products = await this.prismaService.product.findMany({
         where: {
           AND: validWhereConditions,
@@ -194,11 +197,19 @@ export class ProductsService {
         },
         orderBy: [{ basePrice: filters?.sortOrder || 'asc' }],
       });
-
+  
+      // Fetch wishlist items for the user
+      const wishlist = await this.prismaService.wishlist.findMany({
+        where: { userId },
+        select: { productId: true },
+      });
+  
+      const wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+  
       const processedProducts = products.map((product) => {
         let colorsAvailable = product.Variants.map((variant) => variant.color);
         let uniqueColors: string[] = [];
-
+  
         colorsAvailable.forEach((color) => {
           if (color.includes('&')) {
             const duotoneColors = color.split('&').map((col) => col.trim());
@@ -213,16 +224,18 @@ export class ProductsService {
             }
           }
         });
-
+  
         const totalColors = uniqueColors.length;
-
+        const isInWishlist = wishlistProductIds.has(product.productId);
+  
         return {
           ...product,
           colorsAvailable: uniqueColors,
           totalColors,
+          isInWishlist, 
         };
       });
-
+  
       return {
         success: true,
         message: 'Products retrieved successfully',
@@ -235,6 +248,7 @@ export class ProductsService {
       );
     }
   }
+  
 
   async findColorsByCategory(data?: { categoryName: string }) {
     try {
