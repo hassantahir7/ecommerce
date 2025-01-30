@@ -349,12 +349,21 @@ export class AuthService {
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
-
+    let name;
+    if (updateUserDto.firstName && updateUserDto.lastName) {
+       name = `${updateUserDto.firstName} ${updateUserDto.lastName}`;
+    }
+  
     const updatedUser = await this.prismaService.user.update({
       where: { userId },
-      data: { ...updateUserDto },
+      data: { name: name,
+        email: updateUserDto.email,
+        contactNumber: updateUserDto.contactNumber,
+        dateOfBirth: updateUserDto.dateOfBirth,
+       },
     });
-
+  
     return { success: true, message: 'User updated successfully', data: this.exclude(updatedUser, ['password']) };
   }
+  
 }
