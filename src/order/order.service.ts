@@ -157,14 +157,38 @@ export class OrderService {
   }
 
   async updateOrderStatus(updateOrderStatusDto: UpdateOrderStatusDto){
-    await this.prismaService.order.update({
-      where:{
-        orderId: updateOrderStatusDto.orderId
-      },
-      data:{
-        status: updateOrderStatusDto.status
+    const { orderId, status } = updateOrderStatusDto;
+
+    if (!orderId || !status) {
+      throw new HttpException('Missing required fields', HttpStatus.BAD_REQUEST);
+    }
+
+    const order = await this.prismaService.order.findUnique({
+      where: { orderId },
+    });
+
+    if (!order) {
+      throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
+    }
+
+    try {
+     const updatedOrder = await this.prismaService.order.update({
+        where: { orderId },
+        data: { status },
+      });
+
+      return {
+        success: true,
+        message: 'Order status updated successfully',
+        data: updatedOrder,
       }
-    })
+    } catch (error) {
+      throw new HttpException(
+        `Failed to update order status: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    
   }
 
   async getOrderById(orderId: string) {
