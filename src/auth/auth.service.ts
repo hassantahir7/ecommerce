@@ -315,16 +315,34 @@ export class AuthService {
       const user = await this.prismaService.user.findUnique({
         where: { userId },
       });
-
+  
       if (!user) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
+  
 
-      return { success: true, data: this.exclude(user, ['password']) };
+      const userWithoutPassword = this.exclude(user, ['password']);
+  
+
+      const nameParts = userWithoutPassword.name?.split(' ') || [];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+  
+      return {
+        message: "User found successfully",
+        success: true,
+        data: {
+          firstName,
+          lastName,
+          ...userWithoutPassword, 
+        },
+      };
     } catch (error) {
       throw new HttpException(`Failed to get user: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+  
+  
 
   async updateUser(userId: string, updateUserDto: UpdateUserDto) {
     const existingUser = await this.prismaService.user.findUnique({ where: { userId } });
