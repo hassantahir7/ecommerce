@@ -5,7 +5,7 @@ FROM node:16
 WORKDIR /app
 
 # Install system dependencies (if needed)
-RUN apt-get update && apt-get install -y openssl && apt-get clean && rm -rf /var/li>
+RUN apt-get update && apt-get install -y openssl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
