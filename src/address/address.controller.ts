@@ -15,7 +15,7 @@ export class AddressController {
   @ApiOperation({ summary: 'Create a new address' })
   @ApiResponse({ status: 201, description: 'Address successfully created' })
   create(@Body() createAddressDto: CreateAddressDto) {
-    return this.addressService.create(createAddressDto);
+    return this.addressService.createAddress(createAddressDto);
   }
 
   @UseGuards(JwtGuard)

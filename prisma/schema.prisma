@@ -37,26 +37,26 @@ model User {
   Wishlist   Wishlist[]
 }
 
-model Address{
-  addressId        String  @id @default(uuid())
-  userId           String
-  user             User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  firstName        String?
-  lastName         String?
-  contactNumber    String?
-  type             AddressType
-  address          String
-  city             String
-  area             String
-  apartment        String
-  order            Order[]
-  is_Active  Boolean    @default(true)
-  is_Deleted Boolean    @default(false)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+model Address {
+  addressId      String  @id @default(uuid())
+  userId         String
+  user           User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  firstName      String?
+  lastName       String?
+  contactNumber  String?
+  type           AddressType
+  address        String
+  city           String
+  area           String
+  apartment      String
+  order          Order[]
+  is_Active      Boolean  @default(true)
+  is_Deleted     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  @@unique([userId, type], name: "unique_address_type_per_user")
 }
+
 
 model VerifyUser {
   id                String   @id @default(uuid())

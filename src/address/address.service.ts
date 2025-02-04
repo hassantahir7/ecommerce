@@ -2,13 +2,32 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
+import { AddressType } from '@prisma/client';
 
 @Injectable()
 export class AddressService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateAddressDto) {
-    return await this.prisma.address.create({ data });
+  async createAddress(data: CreateAddressDto) {
+    const { userId, type } = data;
+
+    if (type === AddressType.PRIMARY) {
+     
+      const existingPrimary = await this.prisma.address.findFirst({
+        where: { userId, type: AddressType.PRIMARY },
+      });
+
+      if (existingPrimary) {
+        await this.prisma.address.update({
+          where: { addressId: existingPrimary.addressId },
+          data: { type: AddressType.SECONDARY },
+        });
+      }
+    }
+    
+    return await this.prisma.address.create({
+      data,
+    });
   }
 
   async findAll() {

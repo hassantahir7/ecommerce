@@ -23,12 +23,10 @@ export class OrderService {
     })
     let address;
     if(checkExistingAddress){
+   
       address = await this.prismaService.address.update({
-        where: {
-          unique_address_type_per_user: {
-            userId,
-            type: AddressType.PRIMARY,
-          },
+        where:{
+          addressId: checkExistingAddress.addressId
         },
         data: {
           address: createOrderDto.address,
