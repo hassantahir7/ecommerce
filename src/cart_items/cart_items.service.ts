@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { count } from 'console';
 
 @Injectable()
 export class CartItemsService {
@@ -42,11 +43,18 @@ export class CartItemsService {
        await this.prismaService.productVariant.update({
       where: { variantId: variantId },
       data: { stock: { decrement: stock } },
+      
     });
+    const cart = await this.prismaService.cart.findUnique({
+      where: { userId: userId },
+      include: {
+        CartItems: true
+      }
+    })
       return {
         success: true,
         message: 'Cart item updated successfully',
-        data: existingVariant,
+        data: {existingVariant, count: cart.CartItems.length},
       };
     }
   
@@ -62,11 +70,18 @@ export class CartItemsService {
       where: { variantId: variantId },
       data: { stock: { decrement: quantity } },
     });
+
+    const cart = await this.prismaService.cart.findUnique({
+      where: { userId: userId },
+      include: {
+        CartItems: true
+      }
+    })
   
     return {
       success: true,
       message: 'Cart item created successfully',
-      data: cartItem,
+      data: {cartItem, count: cart.CartItems.length},
     };
   }
   
