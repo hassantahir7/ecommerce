@@ -175,12 +175,18 @@ export class ProductsService {
         },
         filters?.style && {
           Variants: {
-            some: { style: { contains: filters.style, mode: 'insensitive' } },
+            some: { 
+              style: { contains: filters.style, mode: 'insensitive' },
+              is_Deleted: false 
+            },
           },
         },
         colorsArray.length > 0 && {
           Variants: {
-            some: { color: { in: colorsArray, mode: 'insensitive' } },
+            some: { 
+              color: { in: colorsArray, mode: 'insensitive' },
+              is_Deleted: false 
+            },
           },
         },
       ];

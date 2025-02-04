@@ -160,7 +160,6 @@ export class AuthService {
       data: {
         access_token: token,
         name: user.name,
-        address: user.address,
         email: user.email,
         contactNumber: user.contactNumber,
         profilePic: user.profilePic,

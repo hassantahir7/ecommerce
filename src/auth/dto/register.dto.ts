@@ -72,13 +72,13 @@ export class RegisterDto {
   subscription: boolean;
 
 
-   @ApiProperty({
-    example: "134 E bLock Canal Gardens Lahore Pakistan",
-    description: 'Address of  the user.',
-    required: false,
-  })
-  @IsOptional()
-  address: string;
+  //  @ApiProperty({
+  //   example: "134 E bLock Canal Gardens Lahore Pakistan",
+  //   description: 'Address of  the user.',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // address: string;
 
 
 
