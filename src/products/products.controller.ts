@@ -127,7 +127,7 @@ export class ProductsController {
 
   @Delete(ProductsEndpoints.remove)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Soft delete a product' })
+  @ApiOperation({ summary: 'Delete a product' })
   async remove(@Param('id') id: string) {
     return this.productsService.remove(id);
   }

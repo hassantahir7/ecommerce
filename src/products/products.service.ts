@@ -176,8 +176,7 @@ export class ProductsService {
         filters?.style && {
           Variants: {
             some: { 
-              style: { contains: filters.style, mode: 'insensitive' },
-              is_Deleted: false 
+              style: { contains: filters.style, mode: 'insensitive' },     
             },
           },
         },
@@ -185,7 +184,6 @@ export class ProductsService {
           Variants: {
             some: { 
               color: { in: colorsArray, mode: 'insensitive' },
-              is_Deleted: false 
             },
           },
         },
@@ -557,9 +555,8 @@ export class ProductsService {
         throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
       }
 
-      const deletedProduct = await this.prismaService.product.update({
+      const deletedProduct = await this.prismaService.product.delete({
         where: { productId: id },
-        data: { is_Deleted: true },
       });
 
       return {
