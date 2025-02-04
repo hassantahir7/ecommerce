@@ -161,6 +161,7 @@ export class AuthService {
         access_token: token,
         name: user.name,
         email: user.email,
+        address: user.address,
         contactNumber: user.contactNumber,
         profilePic: user.profilePic,
         subscription: user.subscription,
@@ -171,6 +172,9 @@ export class AuthService {
   async getUserByEmail(email: string) {
     const user = await this.prismaService.user.findUnique({
       where: { email },
+      include: {
+        address: true
+      }
     });
     return user;
   }
