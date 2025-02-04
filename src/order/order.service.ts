@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CartService } from '../cart/cart.service';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { AddressType } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -14,7 +15,40 @@ export class OrderService {
 
   async createOrder(createOrderDto: CreateOrderDto, userId: string) {
     const cart = await this.cartService.findByUserId(userId);
-
+    const checkExistingAddress = await this.prismaService.address.findFirst({
+      where: {
+        userId,
+        type: AddressType.PRIMARY
+      }
+    })
+    let address;
+    if(checkExistingAddress){
+      address = await this.prismaService.address.update({
+        where: {
+          unique_address_type_per_user: {
+            userId,
+            type: AddressType.PRIMARY,
+          },
+        },
+        data: {
+          address: createOrderDto.address,
+          city: createOrderDto.city,
+          area: createOrderDto.area,
+          apartment: createOrderDto.apartment
+        }
+      })
+    }else{
+      address = await this.prismaService.address.create({
+        data: {
+          userId,
+          address: createOrderDto.address,
+          city: createOrderDto.city,
+          area: createOrderDto.area,
+          apartment: createOrderDto.apartment,
+          type: AddressType.PRIMARY
+        }
+      })
+    }
     if (!cart || !cart.data.CartItems || cart.data.CartItems.length === 0) {
       throw new HttpException('Cart is empty', HttpStatus.BAD_REQUEST);
     }
@@ -53,7 +87,7 @@ export class OrderService {
     const order = await this.prismaService.order.create({
       data: {
         userId,
-        address: createOrderDto.address,
+        addressId: address.addressId,
         contactNumber: createOrderDto.contactNumber,
         quantity: cart.data.CartItems.length,
         discount: createOrderDto.discount,
@@ -93,6 +127,7 @@ export class OrderService {
             },
           },
         },
+        address: true
       },
     });
 
@@ -113,6 +148,7 @@ export class OrderService {
       include: {
         Order: {
           include: {
+            address: true,
             orderItems: {
               include: {
                 variant: {
@@ -146,6 +182,7 @@ export class OrderService {
             },
           },
         },
+        address: true
       },
     });
 

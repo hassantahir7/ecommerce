@@ -1,14 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PaymentMethod } from '@prisma/client';
-import { IsString, IsNumber, IsOptional, IsUUID, IsEnum } from 'class-validator';
+import { AddressType, PaymentMethod } from '@prisma/client';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+  IsEnum,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateOrderDto {
-  @ApiProperty({
-    description: 'The delivery address for the order',
-    type: String,
-  })
+  @ApiProperty({ example: '123 Street Name', description: 'Address details' })
   @IsString()
+  @IsNotEmpty()
   address: string;
+
+  @ApiProperty({ example: 'New York', description: 'City name' })
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @ApiProperty({ example: 'Brooklyn', description: 'Area name' })
+  @IsString()
+  @IsNotEmpty()
+  area: string;
+
+  @ApiProperty({ example: 'Apt 5B', description: 'Apartment details' })
+  @IsString()
+  apartment: string;
+
+  @ApiProperty({
+    example: 'HOME',
+    enum: AddressType,
+    description: 'Type of address',
+  })
+  @IsEnum(AddressType)
+  type: AddressType;
 
   @ApiProperty({
     description: 'The contact number of the user placing the order',

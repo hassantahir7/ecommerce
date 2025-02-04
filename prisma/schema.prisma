@@ -46,10 +46,13 @@ model Address{
   city             String
   area             String
   apartment        String
+  order            Order[]
   is_Active  Boolean    @default(true)
   is_Deleted Boolean    @default(false)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+
+  @@unique([userId, type], name: "unique_address_type_per_user")
 }
 
 model VerifyUser {
@@ -153,7 +156,8 @@ model Order {
   orderId       String        @id @default(uuid())
   userId        String
   user          User          @relation(fields: [userId], references: [userId])
-  address       String
+  addressId     String        
+  address       Address       @relation(fields: [addressId], references: [addressId])
   contactNumber String
   quantity      Int
   discount      Float         @default(0.0)

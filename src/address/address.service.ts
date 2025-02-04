@@ -21,6 +21,13 @@ export class AddressService {
     return address;
   }
 
+
+  async findUserAddress(userId) {
+    const address = await this.prisma.address.findMany({ where: { userId } });
+    if (!address) throw new NotFoundException('Address not found');
+    return address;
+  }
+
   async update(addressId: string, data: UpdateAddressDto) {
     return await this.prisma.address.update({ where: { addressId }, data });
   }
