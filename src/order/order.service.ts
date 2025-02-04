@@ -34,7 +34,10 @@ export class OrderService {
           address: createOrderDto.address,
           city: createOrderDto.city,
           area: createOrderDto.area,
-          apartment: createOrderDto.apartment
+          apartment: createOrderDto.apartment,
+          contactNumber: createOrderDto.contactNumber,
+          firstName: createOrderDto.firstName,
+          lastName: createOrderDto.lastName
         }
       })
     }else{
@@ -45,6 +48,9 @@ export class OrderService {
           city: createOrderDto.city,
           area: createOrderDto.area,
           apartment: createOrderDto.apartment,
+          contactNumber: createOrderDto.contactNumber,
+          firstName: createOrderDto.firstName,
+          lastName: createOrderDto.lastName,
           type: AddressType.PRIMARY
         }
       })
@@ -71,7 +77,6 @@ export class OrderService {
         price,
       });
 
-      // Deduct stock after adding to order
       await this.prismaService.productVariant.update({
         where: { variantId: cartItem.variantId },
         data: {

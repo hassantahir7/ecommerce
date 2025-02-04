@@ -41,6 +41,9 @@ model Address{
   addressId        String  @id @default(uuid())
   userId           String
   user             User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  firstName        String?
+  lastName         String?
+  contactNumber    String?
   type             AddressType
   address          String
   city             String

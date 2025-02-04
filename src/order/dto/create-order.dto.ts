@@ -10,6 +10,22 @@ import {
 } from 'class-validator';
 
 export class CreateOrderDto {
+
+  @ApiProperty({ example: 'Hassan', description: 'First Name' })
+    @IsString()
+    @IsNotEmpty()
+    firstName: string;
+
+    @ApiProperty({ example: 'Tahir', description: 'Last Name' })
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
+
+  @ApiProperty({ example: '03314665719', description: 'Contact Number' })
+  @IsString()
+    @IsNotEmpty()
+  contactNumber: string;
+
   @ApiProperty({ example: '123 Street Name', description: 'Address details' })
   @IsString()
   @IsNotEmpty()
@@ -36,13 +52,6 @@ export class CreateOrderDto {
   })
   @IsEnum(AddressType)
   type: AddressType;
-
-  @ApiProperty({
-    description: 'The contact number of the user placing the order',
-    type: String,
-  })
-  @IsString()
-  contactNumber: string;
 
   @ApiProperty({
     description: 'Any discount applied to the order',
