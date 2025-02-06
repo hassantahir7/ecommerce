@@ -119,7 +119,7 @@ export class OrderService {
     };
   }
 
-  async confirmOrder(userId: string, orderId: string) {
+  async confirmOrder( orderId: string, userId: string,) {
     const order = await this.prismaService.order.findUnique({
       where: { orderId },
     });
