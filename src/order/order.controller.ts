@@ -28,11 +28,19 @@ export class OrderController {
 
 
   @Post(OrderEndpoints.updateOrderStatus)
+  @ApiOperation({ summary: 'Confirm Order Status' })
+  @ApiBearerAuth()
+  async confirmOrder(@Req() req, @Body('orderId') orderId: string) {
+    return this.orderService.confirmOrder(orderId, req.user.id || req.user.userId);
+  }
+
+  @Post(OrderEndpoints.updateOrderStatus)
   @ApiOperation({ summary: 'Change Order Status' })
   @ApiBearerAuth()
   async updateOrderStatus(@Body() updateOrderStatusDto: UpdateOrderStatusDto) {
     return this.orderService.updateOrderStatus(updateOrderStatusDto);
   }
+
 
 
   @Get(OrderEndpoints.getAllOrders)

@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CartService } from '../cart/cart.service';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
-import { AddressType } from '@prisma/client';
+import { AddressType, OrderStatus, PaymentMethod } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
@@ -106,15 +106,55 @@ export class OrderService {
       },
     });
 
-    await this.prismaService.cart.delete({
-      where: { userId },
-    });
-
+    if(createOrderDto.paymentMethod === PaymentMethod.CASH){
+      await this.prismaService.cart.delete({
+        where: { userId },
+      });
+    }
+    
     return {
       success: true,
       message: 'Order created successfully',
       data: order,
     };
+  }
+
+  async confirmOrder(userId: string, orderId: string) {
+    const order = await this.prismaService.order.findUnique({
+      where: { orderId },
+    });
+
+    if (!order) {
+      throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (order.status === OrderStatus.CONFIRMED) {
+      throw new HttpException('Order already confirmed', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const updatedOrder = await this.prismaService.order.update({
+        where: { orderId },
+        data: {
+          status: 'CONFIRMED',
+        },
+      });
+
+      await this.prismaService.cart.delete({
+        where: { userId },
+      });
+
+      return {
+        success: true,
+        message: 'Order confirmed successfully',
+        data: updatedOrder,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to confirm order: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async getOrderByUserId(userId: string) {

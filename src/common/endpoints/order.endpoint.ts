@@ -4,7 +4,8 @@ enum OrderEndpoints {
     findUserAllOrders = '/user',
     findOne = ':orderId',
     getAllCustomersWithOrders = 'getAllCustomersWithOrders',
-    updateOrderStatus = 'updateOrderStatus'
+    updateOrderStatus = 'updateOrderStatus',
+    confirmOrder = '/confirmOrder'
   }
   
   export { OrderEndpoints };
