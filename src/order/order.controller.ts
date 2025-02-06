@@ -27,7 +27,7 @@ export class OrderController {
   }
 
 
-  @Post(OrderEndpoints.updateOrderStatus)
+  @Post(OrderEndpoints.confirmOrder)
   @ApiOperation({ summary: 'Confirm Order Status' })
   @ApiBearerAuth()
   async confirmOrder(@Req() req, @Body('orderId') orderId: string) {
