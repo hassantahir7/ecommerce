@@ -27,6 +27,7 @@ export class OrderController {
   }
 
 
+  @UseGuards(JwtGuard)
   @Post(OrderEndpoints.confirmOrder)
   @ApiOperation({ summary: 'Confirm Order Status' })
   @ApiBearerAuth()
