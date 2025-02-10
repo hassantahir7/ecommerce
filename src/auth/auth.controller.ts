@@ -10,6 +10,7 @@ import { VerifyUserDto } from './dto/verify-user.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { SubscriptionDto } from './dto/subscription.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -21,6 +22,14 @@ export class AuthController {
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
+
+  @ApiOperation({ summary: 'Update Subscription' })
+  @UseGuards(JwtGuard)
+  @Get(AuthEndpoints.updateSubscription)
+  async handleSubscription(@Req() req, @Body() subscriptionDto: SubscriptionDto) {
+    return this.authService.handleSubscription(subscriptionDto, req.user.id || req.user.userId);
+  }
+
 
   @ApiOperation({ summary: 'Find one user' })
   @UseGuards(JwtGuard)

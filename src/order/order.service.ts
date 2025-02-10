@@ -5,10 +5,12 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { CartService } from '../cart/cart.service';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddressType, OrderStatus, PaymentMethod } from '@prisma/client';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class OrderService {
   constructor(
+    private mailerService: MailerService,
     private prismaService: PrismaService,
     private cartService: CartService,
   ) {}
@@ -101,7 +103,20 @@ export class OrderService {
         },
       },
       include: {
-        orderItems: true,
+        orderItems: {
+          include: {
+            variant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+        user: {
+          select: {
+            email: true,
+          },
+        },
       },
     });
 
@@ -111,6 +126,58 @@ export class OrderService {
       });
     }
 
+    const emailBody = `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+    <h2 style="color: #333;">Order Confirmation</h2>
+    <p style="color: #555;">Dear <strong>${createOrderDto.firstName}</strong>,</p>
+    <p style="color: #555;">Thank you for your order! Here are your order details:</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+      <thead>
+        <tr>
+          <th style="text-align: left; padding: 10px; border-bottom: 2px solid #ddd;">Product</th>
+          <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Quantity</th>
+          <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Unit Price</th>
+          <th style="text-align: center; padding: 10px; border-bottom: 2px solid #ddd;">Total Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${order.orderItems
+          .map(
+            (item) =>
+              `<tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.variant.product.name}</td>
+                <td style="text-align: center; padding: 10px; border-bottom: 1px solid #eee;">${item.quantity}</td>
+                <td style="text-align: center; padding: 10px; border-bottom: 1px solid #eee;">$${item.price.toFixed(2)}</td>
+                <td style="text-align: center; padding: 10px; border-bottom: 1px solid #eee;">$${(
+                  item.price * item.quantity
+                ).toFixed(2)}</td>
+              </tr>`,
+          )
+          .join('')}
+      </tbody>
+    </table>
+
+    <p style="text-align: right; font-size: 18px; margin-top: 20px;">
+      <strong>Subtotal:</strong> $${subtotal.toFixed(2)}
+    </p>
+    <p style="text-align: right; font-size: 18px;">
+      <strong>Discount:</strong> -$${createOrderDto.discount.toFixed(2)}
+    </p>
+    <p style="text-align: right; font-size: 20px; font-weight: bold; color: #d9534f;">
+      Total: $${total.toFixed(2)}
+    </p>
+
+    <p style="margin-top: 20px;">We will notify you once your order is on the way.</p>
+    <p style="color: #555;">Best regards,<br><strong>Your Company Name</strong></p>
+  </div>
+`;
+
+    await this.mailerService.sendEmail(
+      order.user.email,
+      'Order Confirmation',
+      emailBody,
+    );
     return {
       success: true,
       message: 'Order created successfully',

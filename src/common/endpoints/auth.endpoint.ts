@@ -7,6 +7,7 @@ enum AuthEndpoints {
   updatePassword = '/updatePassword',
   updateUser = '/updateUser',
   getOneUser = '/getOneUser',
+  updateSubscription = '/updateSubscription',
 }
 
 export { AuthEndpoints };

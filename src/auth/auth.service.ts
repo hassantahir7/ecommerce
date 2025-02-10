@@ -17,6 +17,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { SubscriptionDto } from './dto/subscription.dto';
 
 @Injectable()
 export class AuthService {
@@ -128,6 +129,48 @@ export class AuthService {
     }
   }
 
+  async handleSubscription(data: SubscriptionDto, userId: string) {
+    const { subscription } = data;
+    if (!userId) {
+      throw new HttpException('User Id is required', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          userId,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const isSubscribed = await this.prismaService.user.update({
+        where: {
+          userId,
+        },
+        data: {
+          subscription,
+        },
+      });
+      let message;
+      if (subscription === true) {
+        message = 'You have successfully subscribed!';
+      } else {
+        message = 'You have successfully unsubscribed!';
+      }
+
+      return {
+        success: true,
+        message: message,
+        data: isSubscribed,
+      };
+    } catch (error) {
+      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async login(loginDto: LogInDto) {
     loginDto.email = loginDto.email?.trim();
     loginDto.password = loginDto.password?.trim();
@@ -173,8 +216,8 @@ export class AuthService {
     const user = await this.prismaService.user.findUnique({
       where: { email },
       include: {
-        address: true
-      }
+        address: true,
+      },
     });
     return user;
   }
@@ -309,65 +352,75 @@ export class AuthService {
     }
   }
 
-  private exclude<User, Key extends keyof User>(user: User, keys: Key[]): Omit<User, Key> {
-    return Object.fromEntries(Object.entries(user).filter(([key]) => !keys.includes(key as Key))) as Omit<User, Key>;
+  private exclude<User, Key extends keyof User>(
+    user: User,
+    keys: Key[],
+  ): Omit<User, Key> {
+    return Object.fromEntries(
+      Object.entries(user).filter(([key]) => !keys.includes(key as Key)),
+    ) as Omit<User, Key>;
   }
 
   async getUser(userId: string) {
     try {
       const user = await this.prismaService.user.findUnique({
         where: { userId },
-        include: {address: true}
+        include: { address: true },
       });
-  
+
       if (!user) {
         throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-  
 
       const userWithoutPassword = this.exclude(user, ['password']);
-  
 
       const nameParts = userWithoutPassword.name?.split(' ') || [];
       const firstName = nameParts[0] || '';
       const lastName = nameParts.slice(1).join(' ') || '';
-  
+
       return {
-        message: "User found successfully",
+        message: 'User found successfully',
         success: true,
         data: {
           firstName,
           lastName,
-          ...userWithoutPassword, 
+          ...userWithoutPassword,
         },
       };
     } catch (error) {
-      throw new HttpException(`Failed to get user: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        `Failed to get user: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-  
-  
 
   async updateUser(userId: string, updateUserDto: UpdateUserDto) {
-    const existingUser = await this.prismaService.user.findUnique({ where: { userId } });
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { userId },
+    });
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
     let name;
     if (updateUserDto.firstName && updateUserDto.lastName) {
-       name = `${updateUserDto.firstName} ${updateUserDto.lastName}`;
+      name = `${updateUserDto.firstName} ${updateUserDto.lastName}`;
     }
-  
+
     const updatedUser = await this.prismaService.user.update({
       where: { userId },
-      data: { name: name,
+      data: {
+        name: name,
         email: updateUserDto.email,
         contactNumber: updateUserDto.contactNumber,
         dateOfBirth: updateUserDto.dateOfBirth,
-       },
+      },
     });
-  
-    return { success: true, message: 'User updated successfully', data: this.exclude(updatedUser, ['password']) };
+
+    return {
+      success: true,
+      message: 'User updated successfully',
+      data: this.exclude(updatedUser, ['password']),
+    };
   }
-  
 }
