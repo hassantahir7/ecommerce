@@ -5,7 +5,7 @@ import { LogInDto } from './dto/login.dto';
 import { AuthEndpoints } from 'src/common/endpoints/auth.endpoint';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtGuard } from './jwt/jwt.guard';
-import { ApiBody, ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
 import { ForgetPasswordDto } from './dto/forget-password.dto';
@@ -25,6 +25,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Update Subscription' })
   @UseGuards(JwtGuard)
+  @ApiBearerAuth() 
   @Get(AuthEndpoints.updateSubscription)
   async handleSubscription(@Req() req, @Body() subscriptionDto: SubscriptionDto) {
     return this.authService.handleSubscription(subscriptionDto, req.user.id || req.user.userId);
@@ -33,6 +34,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Find one user' })
   @UseGuards(JwtGuard)
+  @ApiBearerAuth() 
   @Get(AuthEndpoints.getOneUser)
   async getUser(@Req() req) {
     return this.authService.getUser(req.user.id || req.user.userId);
@@ -40,6 +42,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Update the user' })
   @UseGuards(JwtGuard)
+  @ApiBearerAuth() 
   @Patch(AuthEndpoints.updateUser)
   async updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto) {
     return this.authService.updateUser(req.user.id || req.user.userId, updateUserDto);
@@ -59,6 +62,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Reset password for an authenticated user' })
   @UseGuards(JwtGuard)
+  @ApiBearerAuth() 
   @Patch(AuthEndpoints.resetPassword)
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto, @Req() req) {
     return this.authService.resetPassword(req.user.userId, resetPasswordDto);
