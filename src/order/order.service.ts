@@ -169,7 +169,7 @@ export class OrderService {
     </p>
 
     <p style="margin-top: 20px;">We will notify you once your order is on the way.</p>
-    <p style="color: #555;">Best regards,<br><strong>Your Company Name</strong></p>
+    <p style="color: #555;">Best regards,<br><strong>Arabica Latina</strong></p>
   </div>
 `;
 
