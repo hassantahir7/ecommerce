@@ -5,6 +5,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { OrderEndpoints } from 'src/common/endpoints/order.endpoint';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { OrderInquiriesDto } from './dto/order-inquiries.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -37,11 +38,18 @@ export class OrderController {
 
   @Post(OrderEndpoints.updateOrderStatus)
   @ApiOperation({ summary: 'Change Order Status' })
-  @ApiBearerAuth()
   async updateOrderStatus(@Body() updateOrderStatusDto: UpdateOrderStatusDto) {
     return this.orderService.updateOrderStatus(updateOrderStatusDto);
   }
 
+
+  @UseGuards(JwtGuard)
+  @Post(OrderEndpoints.createInquiry)
+  @ApiOperation({ summary: 'Create order Inquiry' })
+  @ApiBearerAuth()
+  async orderInquiries(@Req() req, @Body() orderInquiriesDto: OrderInquiriesDto) {
+    return this.orderService.orderInquiries(orderInquiriesDto, req.user.id || req.user.userId);
+  }
 
 
   @Get(OrderEndpoints.getAllOrders)

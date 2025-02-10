@@ -6,6 +6,7 @@ import { CartService } from '../cart/cart.service';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddressType, OrderStatus, PaymentMethod } from '@prisma/client';
 import { MailerService } from 'src/mailer/mailer.service';
+import { OrderInquiriesDto } from './dto/order-inquiries.dto';
 
 @Injectable()
 export class OrderService {
@@ -459,5 +460,43 @@ export class OrderService {
       message: 'Order fetched successfully',
       data: order,
     };
+  }
+
+  async orderInquiries(orderInquiriesDto: OrderInquiriesDto, userId: string) {
+    const { orderId, options, description } = orderInquiriesDto;
+
+    if (!orderId || !options) {
+      throw new HttpException('Missing required fields', HttpStatus.BAD_REQUEST);
+    }
+
+    const order = await this.prismaService.order.findUnique({
+      where: { orderId },
+    });
+
+    if (!order) {
+      throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      const inquiry = await this.prismaService.orderInquiries.create({
+        data: {
+          orderId,
+          options,
+          description,
+          userId,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Order inquiry submitted successfully',
+        data: inquiry,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to submit order inquiry: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

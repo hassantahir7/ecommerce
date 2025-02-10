@@ -15,49 +15,48 @@ datasource db {
 }
 
 model User {
-  userId        String  @id @default(uuid())
-  profilePic    String? @default("dummy")
-  name          String
-  email         String  @unique
-  password      String
-  contactNumber String? @unique // made optional after UI
-  dateOfBirth   String?
-  address       Address[]
-  subscription  Boolean @default(false)
+  userId           String    @id @default(uuid())
+  profilePic       String?   @default("dummy")
+  name             String
+  email            String    @unique
+  password         String
+  contactNumber    String?   @unique // made optional after UI
+  dateOfBirth      String?
+  address          Address[]
+  subscription     Boolean   @default(false)
   subscriptionMail String?
 
   is_emailVerified         Boolean @default(false)
   is_contactNumberVerified Boolean @default(false)
 
-  is_Active  Boolean    @default(true)
-  is_Deleted Boolean    @default(false)
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  Cart       Cart[]
-  Order      Order[]
-  Wishlist   Wishlist[]
+  is_Active      Boolean          @default(true)
+  is_Deleted     Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  Cart           Cart[]
+  Order          Order[]
+  Wishlist       Wishlist[]
+  OrderInquiries OrderInquiries[]
 }
 
 model Address {
-  addressId      String  @id @default(uuid())
-  userId         String
-  user           User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  firstName      String?
-  lastName       String?
-  contactNumber  String?
-  type           AddressType
-  address        String
-  city           String
-  area           String
-  apartment      String
-  order          Order[]
-  is_Active      Boolean  @default(true)
-  is_Deleted     Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
+  addressId     String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  firstName     String?
+  lastName      String?
+  contactNumber String?
+  type          AddressType
+  address       String
+  city          String
+  area          String
+  apartment     String
+  order         Order[]
+  is_Active     Boolean     @default(true)
+  is_Deleted    Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
-
 
 model VerifyUser {
   id                String   @id @default(uuid())
@@ -157,36 +156,37 @@ model Categories {
 }
 
 model Order {
-  orderId       String        @id @default(uuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [userId])
-  addressId     String        
-  address       Address       @relation(fields: [addressId], references: [addressId])
-  contactNumber String
-  quantity      Int
-  discount      Float         @default(0.0)
-  total         Float
-  subtotal      Float
-  paymentMethod PaymentMethod
-  status        OrderStatus   @default(PENDING)
-  orderItems    OrderItem[]
-  sentTime      DateTime?
-  packedTime    DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  is_Active     Boolean       @default(true)
-  is_Deleted    Boolean       @default(false)
-  Payment       Payment[]
+  orderId        String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [userId])
+  addressId      String
+  address        Address          @relation(fields: [addressId], references: [addressId])
+  contactNumber  String
+  quantity       Int
+  discount       Float            @default(0.0)
+  total          Float
+  subtotal       Float
+  paymentMethod  PaymentMethod
+  status         OrderStatus      @default(PENDING)
+  orderItems     OrderItem[]
+  sentTime       DateTime?
+  packedTime     DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  is_Active      Boolean          @default(true)
+  is_Deleted     Boolean          @default(false)
+  Payment        Payment[]
+  OrderInquiries OrderInquiries[]
 }
 
 model discount {
-  discountId       String        @id @default(uuid())
-  promoCode        String
-  percentage       String
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  is_Active     Boolean       @default(true)
-  is_Deleted    Boolean       @default(false)
+  discountId String   @id @default(uuid())
+  promoCode  String
+  percentage String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  is_Active  Boolean  @default(true)
+  is_Deleted Boolean  @default(false)
 }
 
 model OrderItem {
@@ -201,6 +201,20 @@ model OrderItem {
   updatedAt   DateTime       @updatedAt
   is_Active   Boolean        @default(true)
   is_Deleted  Boolean        @default(false)
+}
+
+model OrderInquiries {
+  orderInquiriesId String   @id @default(uuid())
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+  options          String
+  description      String?
+  userId           String
+  user             User     @relation(fields: [userId], references: [userId])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  is_Active        Boolean  @default(true)
+  is_Deleted       Boolean  @default(false)
 }
 
 model Payment {
@@ -243,7 +257,6 @@ enum ProductType {
   JEWELRY
   OTHER
 }
-
 
 enum AddressType {
   PRIMARY
