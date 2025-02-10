@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Param, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param, Req, Query } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/jwt/jwt.guard';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -22,10 +22,10 @@ export class OrderController {
   @Get(OrderEndpoints.findUserAllOrders)
   @ApiOperation({ summary: 'Get all orders for a user' })
   @ApiBearerAuth()
-  async getOrders(@Req() req) {
-    return this.orderService.getOrderByUserId(req.user.userId);
+  async getOrders(@Req() req, @Query('filter') filter?: string) {
+    return this.orderService.getOrderByUserId(req.user.userId, filter);
   }
-
+  
 
   @UseGuards(JwtGuard)
   @Post(OrderEndpoints.confirmOrder)

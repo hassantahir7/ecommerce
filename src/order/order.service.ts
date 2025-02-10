@@ -18,15 +18,14 @@ export class OrderService {
     const checkExistingAddress = await this.prismaService.address.findFirst({
       where: {
         userId,
-        type: AddressType.PRIMARY
-      }
-    })
+        type: AddressType.PRIMARY,
+      },
+    });
     let address;
-    if(checkExistingAddress){
-   
+    if (checkExistingAddress) {
       address = await this.prismaService.address.update({
-        where:{
-          addressId: checkExistingAddress.addressId
+        where: {
+          addressId: checkExistingAddress.addressId,
         },
         data: {
           address: createOrderDto.address,
@@ -35,10 +34,10 @@ export class OrderService {
           apartment: createOrderDto.apartment,
           contactNumber: createOrderDto.contactNumber,
           firstName: createOrderDto.firstName,
-          lastName: createOrderDto.lastName
-        }
-      })
-    }else{
+          lastName: createOrderDto.lastName,
+        },
+      });
+    } else {
       address = await this.prismaService.address.create({
         data: {
           userId,
@@ -49,9 +48,9 @@ export class OrderService {
           contactNumber: createOrderDto.contactNumber,
           firstName: createOrderDto.firstName,
           lastName: createOrderDto.lastName,
-          type: AddressType.PRIMARY
-        }
-      })
+          type: AddressType.PRIMARY,
+        },
+      });
     }
     if (!cart || !cart.data.CartItems || cart.data.CartItems.length === 0) {
       throw new HttpException('Cart is empty', HttpStatus.BAD_REQUEST);
@@ -106,12 +105,12 @@ export class OrderService {
       },
     });
 
-    if(createOrderDto.paymentMethod === PaymentMethod.CASH){
+    if (createOrderDto.paymentMethod === PaymentMethod.CASH) {
       await this.prismaService.cart.delete({
         where: { userId },
       });
     }
-    
+
     return {
       success: true,
       message: 'Order created successfully',
@@ -119,7 +118,7 @@ export class OrderService {
     };
   }
 
-  async confirmOrder( orderId: string, userId: string,) {
+  async confirmOrder(orderId: string, userId: string) {
     const order = await this.prismaService.order.findUnique({
       where: { orderId },
     });
@@ -129,7 +128,10 @@ export class OrderService {
     }
 
     if (order.status === OrderStatus.CONFIRMED) {
-      throw new HttpException('Order already confirmed', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Order already confirmed',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     try {
@@ -157,9 +159,21 @@ export class OrderService {
     }
   }
 
-  async getOrderByUserId(userId: string) {
-    const orders = await this.prismaService.order.findMany({
-      where: { userId },
+  async getOrderByUserId(userId: string, filter?: string) {
+    let whereCondition: any = { userId };
+
+    if (filter === 'last_six_months') {
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      whereCondition.createdAt = { gte: sixMonthsAgo };
+    } else if (filter === 'last_year') {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      whereCondition.createdAt = { gte: oneYearAgo };
+    }
+
+    const userOrders = await this.prismaService.order.findMany({
+      where: whereCondition,
       include: {
         orderItems: {
           include: {
@@ -170,14 +184,14 @@ export class OrderService {
             },
           },
         },
-        address: true
+        address: true,
       },
+      orderBy: { createdAt: 'desc' },
     });
-
     return {
       success: true,
       message: 'Orders fetched successfully',
-      data: orders,
+      data: userOrders,
     };
   }
 
@@ -185,7 +199,7 @@ export class OrderService {
     const customers = await this.prismaService.user.findMany({
       where: {
         Order: {
-          some: {}, 
+          some: {},
         },
       },
       include: {
@@ -225,7 +239,7 @@ export class OrderService {
             },
           },
         },
-        address: true
+        address: true,
       },
     });
 
@@ -236,11 +250,31 @@ export class OrderService {
     };
   }
 
-  async updateOrderStatus(updateOrderStatusDto: UpdateOrderStatusDto){
+  async updateOrderStatus(updateOrderStatusDto: UpdateOrderStatusDto) {
     const { orderId, status } = updateOrderStatusDto;
 
     if (!orderId || !status) {
-      throw new HttpException('Missing required fields', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing required fields',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    let data;
+    if (status === OrderStatus.PACKED) {
+      data = {
+        status,
+        packedTime: new Date(),
+      };
+    } else if (status === OrderStatus.DISPATCHED) {
+      data = {
+        status,
+        sentTime: new Date(),
+      };
+    } else {
+      data = {
+        status,
+      };
     }
 
     const order = await this.prismaService.order.findUnique({
@@ -252,23 +286,22 @@ export class OrderService {
     }
 
     try {
-     const updatedOrder = await this.prismaService.order.update({
+      const updatedOrder = await this.prismaService.order.update({
         where: { orderId },
-        data: { status },
+        data: data,
       });
 
       return {
         success: true,
         message: 'Order status updated successfully',
         data: updatedOrder,
-      }
+      };
     } catch (error) {
       throw new HttpException(
         `Failed to update order status: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    
   }
 
   async getOrderById(orderId: string) {

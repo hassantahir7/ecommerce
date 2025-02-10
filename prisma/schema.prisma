@@ -169,6 +169,8 @@ model Order {
   paymentMethod PaymentMethod
   status        OrderStatus   @default(PENDING)
   orderItems    OrderItem[]
+  sentTime      DateTime?
+  packedTime    DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   is_Active     Boolean       @default(true)
@@ -216,6 +218,7 @@ model Payment {
 enum OrderStatus {
   PENDING
   CONFIRMED
+  PACKED
   DISPATCHED
   DELIVERED
   CANCELLED
