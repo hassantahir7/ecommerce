@@ -21,6 +21,35 @@ export class MailerService {
     });
   }
 
+  async sendEmailForOrderConfirmation(
+    recepient: string,
+    subject: string,
+    email_body: string,
+  ): Promise<any> {
+    const transporter = this.getTransporter();
+    const mailOptions = this.getMailOptionsForOrder(recepient, subject, email_body);
+
+    transporter.sendMail(mailOptions, (error: { message: any }) => {
+      if (error) {
+        console.log('Error in sending mail(mailer service)', error.message);
+      } else {
+        console.log('Email Sent');
+      }
+    });
+  }
+
+
+  getMailOptionsForOrder(recepient: string, subject: string, email_body: string) {
+    const mailOptions = {
+      from: `"Arabic Latina" <${process.env.APP_EMAIL}>`, // Pretty sender name
+      to: recepient,
+      subject: subject,
+      html: email_body
+    };
+
+    return mailOptions;
+  }
+
   getTransporter() {
     return nodemailer.createTransport({
       service: 'gmail',

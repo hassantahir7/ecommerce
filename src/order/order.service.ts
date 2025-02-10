@@ -173,7 +173,7 @@ export class OrderService {
   </div>
 `;
 
-    await this.mailerService.sendEmail(
+    await this.mailerService.sendEmailForOrderConfirmation(
       order.user.email,
       'Order Confirmation',
       emailBody,
