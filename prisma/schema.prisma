@@ -24,6 +24,7 @@ model User {
   dateOfBirth   String?
   address       Address[]
   subscription  Boolean @default(false)
+  subscriptionMail String?
 
   is_emailVerified         Boolean @default(false)
   is_contactNumberVerified Boolean @default(false)

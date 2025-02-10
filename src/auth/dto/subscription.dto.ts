@@ -8,4 +8,12 @@ export class SubscriptionDto {
   })
   @IsNotEmpty()
   subscription: boolean;
+
+  @ApiProperty({
+    description: 'Email for subscription!',
+    example: "john.doe@example.com",
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 }

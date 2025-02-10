@@ -130,7 +130,7 @@ export class AuthService {
   }
 
   async handleSubscription(data: SubscriptionDto, userId: string) {
-    const { subscription } = data;
+    const { subscription, email } = data;
     if (!userId) {
       throw new HttpException('User Id is required', HttpStatus.BAD_REQUEST);
     }
@@ -152,6 +152,7 @@ export class AuthService {
         },
         data: {
           subscription,
+          subscriptionMail: email
         },
       });
       let message;
