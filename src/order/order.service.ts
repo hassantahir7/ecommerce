@@ -76,15 +76,6 @@ export class OrderService {
         quantity: itemQuantity,
         price,
       });
-
-      await this.prismaService.productVariant.update({
-        where: { variantId: cartItem.variantId },
-        data: {
-          stock: {
-            decrement: itemQuantity,
-          },
-        },
-      });
     }
 
     total = subtotal - createOrderDto.discount;
