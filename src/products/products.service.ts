@@ -411,7 +411,14 @@ export class ProductsService {
 
       const products = await this.prismaService.product.findMany({
         where: {
-          AND: validWhereConditions,
+          AND: [
+            ...validWhereConditions,
+            {
+              Variants: {
+                some: {},
+              },
+            },
+          ],
         },
         include: {
           Variants: true,
