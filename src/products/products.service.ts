@@ -151,23 +151,21 @@ export class ProductsService {
   }
 
   async findAll(
-    userId?: string, // Make userId optional
+    userId?: string,
     filters?: {
       type?: string;
       categoryName?: string;
       color?: string;
       style?: string;
-      sortOrder?: 'asc' | 'desc';
+      sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
     },
   ) {
     try {
       const colorsArray = filters?.color ? filters.color.split(',') : [];
-  
+
       const whereConditions: any[] = [
         { is_Active: true, is_Deleted: false },
-        filters?.type && {
-          category: { gender: filters.type.toUpperCase() },
-        },
+        filters?.type && { category: { gender: filters.type.toUpperCase() } },
         filters?.categoryName && {
           category: {
             name: { contains: filters.categoryName, mode: 'insensitive' },
@@ -175,29 +173,33 @@ export class ProductsService {
         },
         filters?.style && {
           Variants: {
-            some: { 
-              style: { contains: filters.style, mode: 'insensitive' },     
-            },
+            some: { style: { contains: filters.style, mode: 'insensitive' } },
           },
         },
         colorsArray.length > 0 && {
           Variants: {
-            some: { 
-              color: { in: colorsArray, mode: 'insensitive' },
-            },
+            some: { color: { in: colorsArray, mode: 'insensitive' } },
           },
         },
-      ];
-  
-      const validWhereConditions = whereConditions.filter(Boolean);
-  
+      ].filter(Boolean);
+
+      const orderBy =
+        filters?.sortOrder === 'newest'
+          ? { createdAt: 'desc' as const }
+          : filters?.sortOrder === 'oldest'
+            ? { createdAt: 'asc' as const }
+            : filters?.sortOrder === 'asc'
+              ? { basePrice: 'asc' as const }
+              : filters?.sortOrder === 'desc'
+                ? { basePrice: 'desc' as const }
+                : { basePrice: 'asc' as const };
       const products = await this.prismaService.product.findMany({
         where: {
           AND: [
-            ...validWhereConditions,
+            ...whereConditions,
             {
               Variants: {
-                some: {}, 
+                some: {},
               },
             },
           ],
@@ -206,12 +208,10 @@ export class ProductsService {
           Variants: true,
           category: true,
         },
-        orderBy: [{ basePrice: filters?.sortOrder || 'asc' }],
+        orderBy: orderBy,
       });
-      
-  
+
       let wishlistProductIds = new Set<string>();
-  
       if (userId) {
         const wishlist = await this.prismaService.wishlist.findMany({
           where: { userId },
@@ -219,11 +219,11 @@ export class ProductsService {
         });
         wishlistProductIds = new Set(wishlist.map((item) => item.productId));
       }
-  
+
       const processedProducts = products.map((product) => {
         let colorsAvailable = product.Variants.map((variant) => variant.color);
         let uniqueColors: string[] = [];
-  
+
         colorsAvailable.forEach((color) => {
           if (color.includes('&')) {
             const duotoneColors = color.split('&').map((col) => col.trim());
@@ -238,18 +238,20 @@ export class ProductsService {
             }
           }
         });
-  
+
         const totalColors = uniqueColors.length;
-        const isInWishlist = userId ? wishlistProductIds.has(product.productId) : undefined;
-  
+        const isInWishlist = userId
+          ? wishlistProductIds.has(product.productId)
+          : undefined;
+
         return {
           ...product,
           colorsAvailable: uniqueColors,
           totalColors,
-          ...(userId && { isInWishlist }), 
+          ...(userId && { isInWishlist }),
         };
       });
-  
+
       return {
         success: true,
         message: 'Products retrieved successfully',
@@ -262,8 +264,6 @@ export class ProductsService {
       );
     }
   }
-  
-  
 
   async findColorsByCategory(data?: { categoryName: string }) {
     try {
@@ -385,7 +385,7 @@ export class ProductsService {
     type?: string;
     color?: string;
     style?: string;
-    sortOrder?: 'asc' | 'desc';
+    sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
   }) {
     try {
       const colorsArray = filters?.color ? filters.color.split(',') : [];
@@ -409,6 +409,17 @@ export class ProductsService {
 
       const validWhereConditions = whereConditions.filter(Boolean);
 
+      const orderBy =
+        filters?.sortOrder === 'newest'
+          ? { createdAt: 'desc' as const }
+          : filters?.sortOrder === 'oldest'
+            ? { createdAt: 'asc' as const }
+            : filters?.sortOrder === 'asc'
+              ? { basePrice: 'asc' as const }
+              : filters?.sortOrder === 'desc'
+                ? { basePrice: 'desc' as const }
+                : { basePrice: 'asc' as const };
+
       const products = await this.prismaService.product.findMany({
         where: {
           AND: [
@@ -424,7 +435,7 @@ export class ProductsService {
           Variants: true,
           category: true,
         },
-        orderBy: [{ basePrice: filters?.sortOrder || 'asc' }],
+        orderBy: orderBy,
       });
 
       if (products.length === 0) {
@@ -489,7 +500,7 @@ export class ProductsService {
           is_Active: true,
           is_Deleted: false,
           Variants: {
-            some: {}, 
+            some: {},
           },
         },
         include: {

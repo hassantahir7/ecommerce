@@ -66,7 +66,7 @@ export class ProductsController {
     @Query('categoryName') categoryName?: string,
     @Query('color') color?: string,
     @Query('style') style?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest',
     
   ) {
     const filter = {
@@ -110,7 +110,7 @@ export class ProductsController {
     @Query('type') type?: string,
     @Query('color') color?: string,
     @Query('style') style?: string,
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest',
   ) {
     const filter = { type, color, style, sortOrder };
     return this.productsService.getLimitedEditionProducts(filter);
