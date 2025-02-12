@@ -193,7 +193,14 @@ export class ProductsService {
   
       const products = await this.prismaService.product.findMany({
         where: {
-          AND: validWhereConditions,
+          AND: [
+            ...validWhereConditions,
+            {
+              Variants: {
+                some: {}, 
+              },
+            },
+          ],
         },
         include: {
           Variants: true,
@@ -201,6 +208,7 @@ export class ProductsService {
         },
         orderBy: [{ basePrice: filters?.sortOrder || 'asc' }],
       });
+      
   
       let wishlistProductIds = new Set<string>();
   
@@ -473,6 +481,9 @@ export class ProductsService {
           },
           is_Active: true,
           is_Deleted: false,
+          Variants: {
+            some: {}, 
+          },
         },
         include: {
           Variants: true,

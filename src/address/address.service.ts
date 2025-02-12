@@ -12,7 +12,6 @@ export class AddressService {
     const { userId, type } = data;
 
     if (type === AddressType.PRIMARY) {
-     
       const existingPrimary = await this.prisma.address.findFirst({
         where: { userId, type: AddressType.PRIMARY },
       });
@@ -24,7 +23,7 @@ export class AddressService {
         });
       }
     }
-    
+
     return await this.prisma.address.create({
       data,
     });
@@ -35,11 +34,12 @@ export class AddressService {
   }
 
   async findOne(addressId: string) {
-    const address = await this.prisma.address.findUnique({ where: { addressId } });
+    const address = await this.prisma.address.findUnique({
+      where: { addressId },
+    });
     if (!address) throw new NotFoundException('Address not found');
     return address;
   }
-
 
   async findUserAddress(userId) {
     const address = await this.prisma.address.findMany({ where: { userId } });
