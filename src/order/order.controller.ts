@@ -6,6 +6,7 @@ import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { OrderEndpoints } from 'src/common/endpoints/order.endpoint';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderInquiriesDto } from './dto/order-inquiries.dto';
+import { CreateResponseDto } from './dto/create-response.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -51,6 +52,20 @@ export class OrderController {
     return this.orderService.orderInquiries(orderInquiriesDto, req.user.id || req.user.userId);
   }
 
+  @Post(OrderEndpoints.inquiriesAll)
+  @ApiOperation({ summary: 'Get all inquiries' })
+
+  async getOrderInquiries() {
+    return this.orderService.getOrderInquiries();
+  }
+
+  @Post(OrderEndpoints.respondMail)
+  @ApiOperation({ summary: 'Create Response!' })
+  async createInquiry(
+    @Body() createResponseDto: CreateResponseDto
+  ) {
+    return this.orderService.createInquiry(createResponseDto);
+  }
 
   @Get(OrderEndpoints.getAllOrders)
   @ApiOperation({ summary: 'Get all orders' })

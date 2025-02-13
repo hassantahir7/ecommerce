@@ -7,6 +7,7 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { AddressType, OrderStatus, PaymentMethod } from '@prisma/client';
 import { MailerService } from 'src/mailer/mailer.service';
 import { OrderInquiriesDto } from './dto/order-inquiries.dto';
+import { CreateResponseDto } from './dto/create-response.dto';
 
 @Injectable()
 export class OrderService {
@@ -457,7 +458,10 @@ export class OrderService {
     const { orderId, options, description } = orderInquiriesDto;
 
     if (!orderId || !options) {
-      throw new HttpException('Missing required fields', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Missing required fields',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const order = await this.prismaService.order.findUnique({
@@ -489,5 +493,135 @@ export class OrderService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getOrderInquiries() {
+    try {
+      const inquiry = await this.prismaService.orderInquiries.findMany({
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+          order: {
+            include: {
+              orderItems: {
+                include: {
+                  variant: {
+                    include: {
+                      product: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          is_Active: 'desc'
+        }
+      });
+
+      return {
+        success: true,
+        message: 'Order inquiries fetched successfully',
+        data: inquiry,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to get order inquiries: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async createInquiry(
+    createResponseDto: CreateResponseDto
+  ) {
+    const {subject, email, message, orderInquiriesId} = createResponseDto
+    const emailBody = await this.generateEmailTemplate(subject, message);
+
+    await this.mailerService.sendEmailForInquiries(
+      email,
+      'Inquiry Received',
+      emailBody,
+    );
+    const data = await this.prismaService.orderInquiries.update({
+      where: {
+        orderInquiriesId,
+      },
+      data: {
+        is_Active: false,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        order: {
+          include: {
+            orderItems: {
+              include: {
+                variant: {
+                  include: {
+                    product: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    return {
+      success: true,
+      data: data,
+      message: 'Sent Successfully',
+    };
+  }
+
+  generateEmailTemplate(subject: string, message: string): string {
+    return `
+      <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border: 1px solid #ddd;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #FBC02D; padding: 15px; text-align: center; color: #ffffff; font-size: 20px; font-weight: bold; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+              Inquiry Received
+            </td>
+          </tr>
+  
+          <!-- Body -->
+          <tr>
+            <td style="padding: 20px; color: #333;">
+              <p style="font-size: 16px; margin-bottom: 15px;">
+                Thank you for reaching out to us. We have received your inquiry and will get back to you shortly.
+              </p>
+  
+              <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                <p style="margin: 5px 0;"><strong>Subject:</strong> ${subject}</p>
+                <p style="margin: 5px 0;"><strong>Response:</strong> ${message}</p>
+              </div>
+  
+              <p style="font-size: 14px; color: #555;">
+                Our support team will contact you as soon as possible.
+              </p>
+            </td>
+          </tr>
+  
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f1f1f1; padding: 15px; text-align: center; font-size: 14px; color: #555; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+              Best Regards,<br>
+              <strong>Arabic Latina Support Team</strong>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `;
   }
 }

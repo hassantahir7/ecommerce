@@ -6,7 +6,9 @@ enum OrderEndpoints {
     getAllCustomersWithOrders = 'getAllCustomersWithOrders',
     updateOrderStatus = 'updateOrderStatus',
     confirmOrder = '/confirmOrder',
-    createInquiry = 'createInquiry'
+    createInquiry = 'createInquiry',
+    inquiriesAll = '/inquiries/all',
+    respondMail = '/respond/mail'
   }
   
   export { OrderEndpoints };
