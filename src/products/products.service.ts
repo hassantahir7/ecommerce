@@ -150,8 +150,396 @@ export class ProductsService {
     }
   }
 
-  async findAll(
-    userId?: string,
+  // async findAll(
+  //   userId?: string,
+  //   filters?: {
+  //     type?: string;
+  //     categoryName?: string;
+  //     color?: string;
+  //     duotone?: string;
+  //     style?: string;
+  //     sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
+  //   },
+  // ) {
+  //   try {
+  //     const colorsArray = filters?.color ? filters.color.split(',') : [];
+  //     const duotoneArray = filters?.duotone
+  //       ? filters.duotone.split(',').map((c) => c.trim())
+  //       : [];
+
+  //     const whereConditions: any[] = [
+  //       { is_Active: true, is_Deleted: false },
+  //       filters?.type && { category: { gender: filters.type.toUpperCase() } },
+  //       filters?.categoryName && {
+  //         category: {
+  //           name: { contains: filters.categoryName, mode: 'insensitive' },
+  //         },
+  //       },
+  //       filters?.style && {
+  //         Variants: {
+  //           some: { style: { contains: filters.style, mode: 'insensitive' } },
+  //         },
+  //       },
+  //       duotoneArray.length > 0 && {
+  //         Variants: {
+  //           some: { color: { in: duotoneArray, mode: 'insensitive' } },
+  //         },
+  //       },
+  //       colorsArray.length > 0 && {
+  //         Variants: {
+  //           some: { color: { in: colorsArray, mode: 'insensitive' } },
+  //         },
+  //       },
+  //     ].filter(Boolean);
+
+  //     const orderBy =
+  //       filters?.sortOrder === 'newest'
+  //         ? { createdAt: 'desc' as const }
+  //         : filters?.sortOrder === 'oldest'
+  //           ? { createdAt: 'asc' as const }
+  //           : filters?.sortOrder === 'asc'
+  //             ? { basePrice: 'asc' as const }
+  //             : filters?.sortOrder === 'desc'
+  //               ? { basePrice: 'desc' as const }
+  //               : { basePrice: 'asc' as const };
+  //     const products = await this.prismaService.product.findMany({
+  //       where: {
+  //         AND: [
+  //           ...whereConditions,
+  //           {
+  //             Variants: {
+  //               some: {},
+  //             },
+  //           },
+  //         ],
+  //       },
+  //       include: {
+  //         Variants: true,
+  //         category: true,
+  //       },
+  //       orderBy: orderBy,
+  //     });
+
+  //     let wishlistProductIds = new Set<string>();
+  //     if (userId) {
+  //       const wishlist = await this.prismaService.wishlist.findMany({
+  //         where: { userId },
+  //         select: { productId: true },
+  //       });
+  //       wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+  //     }
+
+  //     const processedProducts = products.map((product) => {
+  //       let colorsAvailable = product.Variants.map((variant) => variant.color);
+  //       let uniqueColors: string[] = [];
+
+  //       colorsAvailable.forEach((color) => {
+  //         if (color.includes('&')) {
+  //           const duotoneColors = color.split('&').map((col) => col.trim());
+  //           duotoneColors.forEach((duoColor) => {
+  //             if (!uniqueColors.includes(duoColor)) {
+  //               uniqueColors.push(duoColor);
+  //             }
+  //           });
+  //         } else {
+  //           if (!uniqueColors.includes(color)) {
+  //             uniqueColors.push(color);
+  //           }
+  //         }
+  //       });
+
+  //       const totalColors = uniqueColors.length;
+  //       const isInWishlist = userId
+  //         ? wishlistProductIds.has(product.productId)
+  //         : undefined;
+
+  //       return {
+  //         ...product,
+  //         colorsAvailable: uniqueColors,
+  //         totalColors,
+  //         ...(userId && { isInWishlist }),
+  //       };
+  //     });
+
+  //     return {
+  //       success: true,
+  //       message: 'Products retrieved successfully',
+  //       data: processedProducts,
+  //     };
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       `Failed to retrieve products: ${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
+  
+
+  // async getLimitedEditionProducts(
+  //   filters?: {
+  //     type?: string;
+  //     color?: string;
+  //     duotone?: string;
+  //     style?: string;
+  //     sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
+  //   },
+  //   userId?: string,
+  // ) {
+  //   try {
+  //     const colorsArray = filters?.color ? filters.color.split(',') : [];
+  //     const duotoneArray = filters?.duotone
+  //       ? filters.duotone.split(',').map((c) => c.trim())
+  //       : [];
+
+  //     const whereConditions: any[] = [
+  //       { limitedAddition: true, is_Active: true, is_Deleted: false },
+  //       filters?.type && {
+  //         category: { gender: filters.type.toUpperCase() },
+  //       },
+  //       filters?.style && {
+  //         Variants: {
+  //           some: { style: { contains: filters.style, mode: 'insensitive' } },
+  //         },
+  //       },
+  //       colorsArray.length > 0 && {
+  //         Variants: {
+  //           some: { color: { in: colorsArray, mode: 'insensitive' } },
+  //         },
+  //       },
+  //       duotoneArray.length > 0 && {
+  //         Variants: {
+  //           some: { color: { in: duotoneArray, mode: 'insensitive' } },
+  //         },
+  //       },
+  //     ];
+
+  //     const validWhereConditions = whereConditions.filter(Boolean);
+
+  //     const orderBy =
+  //       filters?.sortOrder === 'newest'
+  //         ? { createdAt: 'desc' as const }
+  //         : filters?.sortOrder === 'oldest'
+  //           ? { createdAt: 'asc' as const }
+  //           : filters?.sortOrder === 'asc'
+  //             ? { basePrice: 'asc' as const }
+  //             : filters?.sortOrder === 'desc'
+  //               ? { basePrice: 'desc' as const }
+  //               : { basePrice: 'asc' as const };
+
+  //     const products = await this.prismaService.product.findMany({
+  //       where: {
+  //         AND: [
+  //           ...validWhereConditions,
+  //           {
+  //             Variants: {
+  //               some: {},
+  //             },
+  //           },
+  //         ],
+  //       },
+  //       include: {
+  //         Variants: true,
+  //         category: true,
+  //       },
+  //       orderBy: orderBy,
+  //     });
+
+  //     if (products.length === 0) {
+  //       throw new HttpException(
+  //         'No limited edition products found',
+  //         HttpStatus.NOT_FOUND,
+  //       );
+  //     }
+
+  //     let wishlistProductIds = new Set<string>();
+  //     if (userId) {
+  //       const wishlist = await this.prismaService.wishlist.findMany({
+  //         where: { userId },
+  //         select: { productId: true },
+  //       });
+  //       wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+  //     }
+
+  //     const processedProducts = products.map((product) => {
+  //       let colorsAvailable = product.Variants.map((variant) => variant.color);
+  //       let uniqueColors: string[] = [];
+
+  //       colorsAvailable.forEach((color) => {
+  //         if (color.includes('&')) {
+  //           const duotoneColors = color.split('&').map((col) => col.trim());
+  //           duotoneColors.forEach((duoColor) => {
+  //             if (!uniqueColors.includes(duoColor)) {
+  //               uniqueColors.push(duoColor);
+  //             }
+  //           });
+  //         } else {
+  //           if (!uniqueColors.includes(color)) {
+  //             uniqueColors.push(color);
+  //           }
+  //         }
+  //       });
+
+  //       const totalColors = uniqueColors.length;
+  //       const isInWishlist = userId
+  //         ? wishlistProductIds.has(product.productId)
+  //         : undefined;
+
+  //       return {
+  //         ...product,
+  //         colorsAvailable: uniqueColors,
+  //         totalColors,
+  //         ...(userId && { isInWishlist }),
+  //       };
+  //     });
+
+  //     return {
+  //       success: true,
+  //       message: 'Limited edition products retrieved successfully',
+  //       data: processedProducts,
+  //     };
+  //   } catch (error) {
+  //     if (error instanceof HttpException) {
+  //       throw error;
+  //     }
+  //     throw new HttpException(
+  //       `Failed to retrieve limited edition products: ${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
+  // async searchProducts(
+  //   query,
+  //   filters?: {
+  //     type?: string;
+  //     color?: string;
+  //     duotone?: string;
+  //     style?: string;
+  //     sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
+  //   },
+  //   userId?: string,
+  // ) {
+  //   try {
+  //     const colorsArray = filters?.color ? filters.color.split(',') : [];
+  //     const duotoneArray = filters?.duotone
+  //       ? filters.duotone.split(',').map((c) => c.trim())
+  //       : [];
+
+  //       const whereConditions: any[] = [
+  //         { is_Active: true, is_Deleted: false },
+  //         filters?.type && { category: { gender: filters.type.toUpperCase() } },
+  //         query && {
+  //           category: {
+  //             name: { contains: query, mode: 'insensitive' },
+  //           },
+  //         },
+  //         filters?.style && {
+  //           Variants: {
+  //             some: { style: { contains: filters.style, mode: 'insensitive' } },
+  //           },
+  //         },
+  //         duotoneArray.length > 0 && {
+  //           Variants: {
+  //             some: { color: { in: duotoneArray, mode: 'insensitive' } },
+  //           },
+  //         },
+  //         colorsArray.length > 0 && {
+  //           Variants: {
+  //             some: { color: { in: colorsArray, mode: 'insensitive' } },
+  //           },
+  //         },
+  //       ].filter(Boolean);
+
+    
+
+  //     const orderBy =
+  //       filters?.sortOrder === 'newest'
+  //         ? { createdAt: 'desc' as const }
+  //         : filters?.sortOrder === 'oldest'
+  //           ? { createdAt: 'asc' as const }
+  //           : filters?.sortOrder === 'asc'
+  //             ? { basePrice: 'asc' as const }
+  //             : filters?.sortOrder === 'desc'
+  //               ? { basePrice: 'desc' as const }
+  //               : { basePrice: 'asc' as const };
+
+
+  //               const products = await this.prismaService.product.findMany({
+  //                 where: {
+  //                   AND: [
+  //                     ...whereConditions,
+  //                     {
+  //                       Variants: {
+  //                         some: {},
+  //                       },
+  //                     },
+  //                   ],
+  //                 },
+  //                 include: {
+  //                   Variants: true,
+  //                   category: true,
+  //                 },
+  //                 orderBy: orderBy,
+  //               });
+
+  //     let wishlistProductIds = new Set<string>();
+  //     if (userId) {
+  //       const wishlist = await this.prismaService.wishlist.findMany({
+  //         where: { userId },
+  //         select: { productId: true },
+  //       });
+  //       wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+  //     }
+
+  //     const processedProducts = products.map((product) => {
+  //       let colorsAvailable = product.Variants.map((variant) => variant.color);
+  //       let uniqueColors: string[] = [];
+
+  //       colorsAvailable.forEach((color) => {
+  //         if (color.includes('&')) {
+  //           const duotoneColors = color.split('&').map((col) => col.trim());
+  //           duotoneColors.forEach((duoColor) => {
+  //             if (!uniqueColors.includes(duoColor)) {
+  //               uniqueColors.push(duoColor);
+  //             }
+  //           });
+  //         } else {
+  //           if (!uniqueColors.includes(color)) {
+  //             uniqueColors.push(color);
+  //           }
+  //         }
+  //       });
+
+  //       const totalColors = uniqueColors.length;
+  //       const isInWishlist = userId
+  //         ? wishlistProductIds.has(product.productId)
+  //         : undefined;
+
+  //       return {
+  //         ...product,
+  //         colorsAvailable: uniqueColors,
+  //         totalColors,
+  //         ...(userId && { isInWishlist }),
+  //       };
+  //     });
+
+  //     return {
+  //       success: true,
+  //       message: 'Search results retrieved successfully',
+  //       data: {
+  //         products: processedProducts,
+  //       },
+  //     };
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       `Failed to retrieve search results: ${error.message}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
+  async getProducts(
     filters?: {
       type?: string;
       categoryName?: string;
@@ -159,67 +547,60 @@ export class ProductsService {
       duotone?: string;
       style?: string;
       sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
+      limitedEdition?: boolean;
+      query?: string;
     },
+    userId?: string,
   ) {
     try {
+      console.log(filters);
       const colorsArray = filters?.color ? filters.color.split(',') : [];
       const duotoneArray = filters?.duotone
         ? filters.duotone.split(',').map((c) => c.trim())
         : [];
-
+  
       const whereConditions: any[] = [
         { is_Active: true, is_Deleted: false },
+        filters?.limitedEdition && { limitedAddition: true },
         filters?.type && { category: { gender: filters.type.toUpperCase() } },
         filters?.categoryName && {
-          category: {
-            name: { contains: filters.categoryName, mode: 'insensitive' },
-          },
+          category: { name: { contains: filters.categoryName, mode: 'insensitive' } },
+        },
+        filters?.query && {
+          category: { name: { contains: filters.query, mode: 'insensitive' } },
         },
         filters?.style && {
-          Variants: {
-            some: { style: { contains: filters.style, mode: 'insensitive' } },
-          },
-        },
-        duotoneArray.length > 0 && {
-          Variants: {
-            some: { color: { in: duotoneArray, mode: 'insensitive' } },
-          },
+          Variants: { some: { style: { contains: filters.style, mode: 'insensitive' } } },
         },
         colorsArray.length > 0 && {
-          Variants: {
-            some: { color: { in: colorsArray, mode: 'insensitive' } },
-          },
+          Variants: { some: { color: { in: colorsArray, mode: 'insensitive' } } },
+        },
+        duotoneArray.length > 0 && {
+          Variants: { some: { color: { in: duotoneArray, mode: 'insensitive' } } },
         },
       ].filter(Boolean);
-
+  
       const orderBy =
         filters?.sortOrder === 'newest'
           ? { createdAt: 'desc' as const }
           : filters?.sortOrder === 'oldest'
-            ? { createdAt: 'asc' as const }
-            : filters?.sortOrder === 'asc'
-              ? { basePrice: 'asc' as const }
-              : filters?.sortOrder === 'desc'
-                ? { basePrice: 'desc' as const }
-                : { basePrice: 'asc' as const };
+          ? { createdAt: 'asc' as const }
+          : filters?.sortOrder === 'asc'
+          ? { basePrice: 'asc' as const }
+          : filters?.sortOrder === 'desc'
+          ? { basePrice: 'desc' as const }
+          : { basePrice: 'asc' as const };
+  
       const products = await this.prismaService.product.findMany({
-        where: {
-          AND: [
-            ...whereConditions,
-            {
-              Variants: {
-                some: {},
-              },
-            },
-          ],
-        },
-        include: {
-          Variants: true,
-          category: true,
-        },
-        orderBy: orderBy,
+        where: { AND: [...whereConditions, { Variants: { some: {} } }] },
+        include: { Variants: true, category: true },
+        orderBy,
       });
-
+  
+      if (!products.length && filters?.limitedEdition) {
+        throw new HttpException('No limited edition products found', HttpStatus.NOT_FOUND);
+      }
+  
       let wishlistProductIds = new Set<string>();
       if (userId) {
         const wishlist = await this.prismaService.wishlist.findMany({
@@ -228,51 +609,40 @@ export class ProductsService {
         });
         wishlistProductIds = new Set(wishlist.map((item) => item.productId));
       }
-
+  
       const processedProducts = products.map((product) => {
-        let colorsAvailable = product.Variants.map((variant) => variant.color);
-        let uniqueColors: string[] = [];
-
-        colorsAvailable.forEach((color) => {
-          if (color.includes('&')) {
-            const duotoneColors = color.split('&').map((col) => col.trim());
-            duotoneColors.forEach((duoColor) => {
-              if (!uniqueColors.includes(duoColor)) {
-                uniqueColors.push(duoColor);
-              }
-            });
-          } else {
-            if (!uniqueColors.includes(color)) {
-              uniqueColors.push(color);
-            }
-          }
-        });
-
-        const totalColors = uniqueColors.length;
-        const isInWishlist = userId
-          ? wishlistProductIds.has(product.productId)
-          : undefined;
-
+        const uniqueColors = [...new Set(
+          product.Variants.flatMap((variant) =>
+            variant.color.includes('&')
+              ? variant.color.split('&').map((col) => col.trim())
+              : variant.color,
+          ),
+        )];
+  
         return {
           ...product,
           colorsAvailable: uniqueColors,
-          totalColors,
-          ...(userId && { isInWishlist }),
+          totalColors: uniqueColors.length,
+          ...(userId && { isInWishlist: wishlistProductIds.has(product.productId) }),
         };
       });
-
+  
       return {
         success: true,
-        message: 'Products retrieved successfully',
+        message: filters?.limitedEdition
+          ? 'Limited edition products retrieved successfully'
+          : 'Products retrieved successfully',
         data: processedProducts,
       };
     } catch (error) {
+      if (error instanceof HttpException) throw error;
       throw new HttpException(
         `Failed to retrieve products: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+  
 
   async findColorsByCategory(data?: { categoryName: string }) {
     try {
@@ -386,269 +756,6 @@ export class ProductsService {
     } catch (error) {
       throw new HttpException(
         `Failed to retrieve colors: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async getLimitedEditionProducts(
-    filters?: {
-      type?: string;
-      color?: string;
-      duotone?: string;
-      style?: string;
-      sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
-    },
-    userId?: string,
-  ) {
-    try {
-      const colorsArray = filters?.color ? filters.color.split(',') : [];
-      const duotoneArray = filters?.duotone
-        ? filters.duotone.split(',').map((c) => c.trim())
-        : [];
-
-      const whereConditions: any[] = [
-        { limitedAddition: true, is_Active: true, is_Deleted: false },
-        filters?.type && {
-          category: { gender: filters.type.toUpperCase() },
-        },
-        filters?.style && {
-          Variants: {
-            some: { style: { contains: filters.style, mode: 'insensitive' } },
-          },
-        },
-        colorsArray.length > 0 && {
-          Variants: {
-            some: { color: { in: colorsArray, mode: 'insensitive' } },
-          },
-        },
-        duotoneArray.length > 0 && {
-          Variants: {
-            some: { color: { in: duotoneArray, mode: 'insensitive' } },
-          },
-        },
-      ];
-
-      const validWhereConditions = whereConditions.filter(Boolean);
-
-      const orderBy =
-        filters?.sortOrder === 'newest'
-          ? { createdAt: 'desc' as const }
-          : filters?.sortOrder === 'oldest'
-            ? { createdAt: 'asc' as const }
-            : filters?.sortOrder === 'asc'
-              ? { basePrice: 'asc' as const }
-              : filters?.sortOrder === 'desc'
-                ? { basePrice: 'desc' as const }
-                : { basePrice: 'asc' as const };
-
-      const products = await this.prismaService.product.findMany({
-        where: {
-          AND: [
-            ...validWhereConditions,
-            {
-              Variants: {
-                some: {},
-              },
-            },
-          ],
-        },
-        include: {
-          Variants: true,
-          category: true,
-        },
-        orderBy: orderBy,
-      });
-
-      if (products.length === 0) {
-        throw new HttpException(
-          'No limited edition products found',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      let wishlistProductIds = new Set<string>();
-      if (userId) {
-        const wishlist = await this.prismaService.wishlist.findMany({
-          where: { userId },
-          select: { productId: true },
-        });
-        wishlistProductIds = new Set(wishlist.map((item) => item.productId));
-      }
-
-      const processedProducts = products.map((product) => {
-        let colorsAvailable = product.Variants.map((variant) => variant.color);
-        let uniqueColors: string[] = [];
-
-        colorsAvailable.forEach((color) => {
-          if (color.includes('&')) {
-            const duotoneColors = color.split('&').map((col) => col.trim());
-            duotoneColors.forEach((duoColor) => {
-              if (!uniqueColors.includes(duoColor)) {
-                uniqueColors.push(duoColor);
-              }
-            });
-          } else {
-            if (!uniqueColors.includes(color)) {
-              uniqueColors.push(color);
-            }
-          }
-        });
-
-        const totalColors = uniqueColors.length;
-        const isInWishlist = userId
-          ? wishlistProductIds.has(product.productId)
-          : undefined;
-
-        return {
-          ...product,
-          colorsAvailable: uniqueColors,
-          totalColors,
-          ...(userId && { isInWishlist }),
-        };
-      });
-
-      return {
-        success: true,
-        message: 'Limited edition products retrieved successfully',
-        data: processedProducts,
-      };
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException(
-        `Failed to retrieve limited edition products: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  async searchProducts(
-    query,
-    filters?: {
-      type?: string;
-      color?: string;
-      duotone?: string;
-      style?: string;
-      sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
-    },
-    userId?: string,
-  ) {
-    try {
-      const colorsArray = filters?.color ? filters.color.split(',') : [];
-      const duotoneArray = filters?.duotone
-        ? filters.duotone.split(',').map((c) => c.trim())
-        : [];
-
-        const whereConditions: any[] = [
-          { is_Active: true, is_Deleted: false },
-          filters?.type && { category: { gender: filters.type.toUpperCase() } },
-          query && {
-            category: {
-              name: { contains: query, mode: 'insensitive' },
-            },
-          },
-          filters?.style && {
-            Variants: {
-              some: { style: { contains: filters.style, mode: 'insensitive' } },
-            },
-          },
-          duotoneArray.length > 0 && {
-            Variants: {
-              some: { color: { in: duotoneArray, mode: 'insensitive' } },
-            },
-          },
-          colorsArray.length > 0 && {
-            Variants: {
-              some: { color: { in: colorsArray, mode: 'insensitive' } },
-            },
-          },
-        ].filter(Boolean);
-
-    
-
-      const orderBy =
-        filters?.sortOrder === 'newest'
-          ? { createdAt: 'desc' as const }
-          : filters?.sortOrder === 'oldest'
-            ? { createdAt: 'asc' as const }
-            : filters?.sortOrder === 'asc'
-              ? { basePrice: 'asc' as const }
-              : filters?.sortOrder === 'desc'
-                ? { basePrice: 'desc' as const }
-                : { basePrice: 'asc' as const };
-
-
-                const products = await this.prismaService.product.findMany({
-                  where: {
-                    AND: [
-                      ...whereConditions,
-                      {
-                        Variants: {
-                          some: {},
-                        },
-                      },
-                    ],
-                  },
-                  include: {
-                    Variants: true,
-                    category: true,
-                  },
-                  orderBy: orderBy,
-                });
-
-      let wishlistProductIds = new Set<string>();
-      if (userId) {
-        const wishlist = await this.prismaService.wishlist.findMany({
-          where: { userId },
-          select: { productId: true },
-        });
-        wishlistProductIds = new Set(wishlist.map((item) => item.productId));
-      }
-
-      const processedProducts = products.map((product) => {
-        let colorsAvailable = product.Variants.map((variant) => variant.color);
-        let uniqueColors: string[] = [];
-
-        colorsAvailable.forEach((color) => {
-          if (color.includes('&')) {
-            const duotoneColors = color.split('&').map((col) => col.trim());
-            duotoneColors.forEach((duoColor) => {
-              if (!uniqueColors.includes(duoColor)) {
-                uniqueColors.push(duoColor);
-              }
-            });
-          } else {
-            if (!uniqueColors.includes(color)) {
-              uniqueColors.push(color);
-            }
-          }
-        });
-
-        const totalColors = uniqueColors.length;
-        const isInWishlist = userId
-          ? wishlistProductIds.has(product.productId)
-          : undefined;
-
-        return {
-          ...product,
-          colorsAvailable: uniqueColors,
-          totalColors,
-          ...(userId && { isInWishlist }),
-        };
-      });
-
-      return {
-        success: true,
-        message: 'Search results retrieved successfully',
-        data: {
-          products: processedProducts,
-        },
-      };
-    } catch (error) {
-      throw new HttpException(
-        `Failed to retrieve search results: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
