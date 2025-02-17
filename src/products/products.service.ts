@@ -267,8 +267,8 @@ export class ProductsService {
 
   async findColorsByCategory(data?: { categoryName: string }) {
     try {
-      const { categoryName } = data;
-
+      const { categoryName } = data || {};
+  
       const duotoneVariants = await this.prismaService.productVariant.findMany({
         where: {
           product: {
@@ -282,7 +282,7 @@ export class ProductsService {
         },
         select: { color: true },
       });
-
+  
       const colorVariants = await this.prismaService.productVariant.findMany({
         where: {
           product: {
@@ -296,34 +296,32 @@ export class ProductsService {
         },
         select: { color: true },
       });
-
-      const limitedEditionRegularColors =
-        await this.prismaService.productVariant.findMany({
-          where: {
-            product: {
-              is_Active: true,
-              is_Deleted: false,
-              limitedAddition: true,
-            },
-            isDuotone: false,
+  
+      const limitedEditionRegularColors = await this.prismaService.productVariant.findMany({
+        where: {
+          product: {
+            is_Active: true,
+            is_Deleted: false,
+            limitedAddition: true,
           },
-          select: { color: true },
-        });
-
-      const limitedEditionDuotoneColors =
-        await this.prismaService.productVariant.findMany({
-          where: {
-            product: {
-              is_Active: true,
-              is_Deleted: false,
-              limitedAddition: true,
-            },
-            isDuotone: true,
+          isDuotone: false,
+        },
+        select: { color: true },
+      });
+  
+      const limitedEditionDuotoneColors = await this.prismaService.productVariant.findMany({
+        where: {
+          product: {
+            is_Active: true,
+            is_Deleted: false,
+            limitedAddition: true,
           },
-          select: { color: true },
-        });
-
-      const style = await this.prismaService.productVariant.findMany({
+          isDuotone: true,
+        },
+        select: { color: true },
+      });
+  
+      const styles = await this.prismaService.productVariant.findMany({
         where: {
           product: {
             is_Active: true,
@@ -336,25 +334,12 @@ export class ProductsService {
         select: { style: true },
       });
 
-      const duotoneColors = duotoneVariants
-        .map((variant) => variant.color)
-        .filter((color): color is string => !!color);
-      const regularColors = colorVariants
-        .map((variant) => variant.color)
-        .filter((color): color is string => !!color);
-
-      const LEDuotoneColors = limitedEditionDuotoneColors
-        .map((index) => index.color)
-        .filter((color): color is string => !!color);
-
-      const LERegularColors = limitedEditionRegularColors
-        .map((index) => index.color)
-        .filter((color): color is string => !!color);
-
-      const regularStyles = style
-        .map((index) => index.style)
-        .filter((style): style is string => !!style);
-
+      const duotoneColors = [...new Set(duotoneVariants.map((v) => v.color).filter(Boolean))];
+      const regularColors = [...new Set(colorVariants.map((v) => v.color).filter(Boolean))];
+      const LEDuotoneColors = [...new Set(limitedEditionDuotoneColors.map((v) => v.color).filter(Boolean))];
+      const LERegularColors = [...new Set(limitedEditionRegularColors.map((v) => v.color).filter(Boolean))];
+      const uniqueStyles = [...new Set(styles.map((s) => s.style).filter(Boolean))];
+  
       return {
         success: true,
         message: 'Colors retrieved successfully for the category',
@@ -366,7 +351,7 @@ export class ProductsService {
             limitedEditionRegularColors: LERegularColors,
             limitedEditionDuotoneColors: LEDuotoneColors,
           },
-          style: regularStyles,
+          style: uniqueStyles,
           totalColors: {
             duotone: duotoneColors.length,
             regular: regularColors.length,
@@ -380,6 +365,7 @@ export class ProductsService {
       );
     }
   }
+  
 
   async getLimitedEditionProducts(filters?: {
     type?: string;
