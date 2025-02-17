@@ -553,7 +553,6 @@ export class ProductsService {
     userId?: string,
   ) {
     try {
-      console.log(filters);
       const colorsArray = filters?.color ? filters.color.split(',') : [];
       const duotoneArray = filters?.duotone
         ? filters.duotone.split(',').map((c) => c.trim())
@@ -599,6 +598,10 @@ export class ProductsService {
   
       if (!products.length && filters?.limitedEdition) {
         throw new HttpException('No limited edition products found', HttpStatus.NOT_FOUND);
+      }
+
+      if (!products.length) {
+        throw new HttpException('No products found', HttpStatus.NOT_FOUND);
       }
   
       let wishlistProductIds = new Set<string>();
