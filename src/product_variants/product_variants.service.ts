@@ -16,6 +16,9 @@ export class ProductVariantsService {
 
       const createVariant = await this.prismaService.productVariant.create({
         data: { ...createProductVariantDto },
+        include: {
+          product: true
+        }
       });
 
       return {
@@ -126,6 +129,7 @@ export class ProductVariantsService {
     try {
       const existingVariant = await this.prismaService.productVariant.findUnique({
         where: { variantId: id },
+        
       });
 
       if (!existingVariant) {
@@ -135,6 +139,9 @@ export class ProductVariantsService {
       const updatedVariant = await this.prismaService.productVariant.update({
         where: { variantId: id },
         data: { ...updateProductVariantDto },
+        include: {
+          product: true
+        }
       });
 
       return {

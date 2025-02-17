@@ -69,6 +69,7 @@ export class ProductsController {
     @Query('style') style?: string,
     @Query('query') query?: string,
     @Query('limitedEdition') limitedEdition?: boolean,
+    @Query('admin') admin?: boolean,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest',
     
   ) {
@@ -81,6 +82,7 @@ export class ProductsController {
       sortOrder,
       query,
       limitedEdition,
+      admin
     }
     return this.productsService.getProducts(filter, userId);
   }

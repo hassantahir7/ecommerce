@@ -549,6 +549,7 @@ export class ProductsService {
       sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
       limitedEdition?: boolean;
       query?: string;
+      admin?:boolean
     },
     userId?: string,
   ) {
@@ -589,9 +590,9 @@ export class ProductsService {
           : filters?.sortOrder === 'desc'
           ? { basePrice: 'desc' as const }
           : { basePrice: 'asc' as const };
-  
+
       const products = await this.prismaService.product.findMany({
-        where: { AND: [...whereConditions, { Variants: { some: {} } }] },
+        where: { AND: [...whereConditions, filters.admin ? {} : { Variants: { some: {} } }] },
         include: { Variants: true, category: true },
         orderBy,
       });
