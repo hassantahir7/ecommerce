@@ -175,8 +175,7 @@ export class AuthService {
 
   async login(loginDto: LogInDto) {
     loginDto.email = loginDto.email?.trim();
-    loginDto.password = loginDto.password?.trim().toLowerCase();
-
+    loginDto.password = loginDto.password?.trim()
     const user = await this.getUserByEmail(loginDto.email.toLowerCase());
 
     if (!user) {
