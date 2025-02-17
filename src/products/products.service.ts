@@ -163,7 +163,9 @@ export class ProductsService {
   ) {
     try {
       const colorsArray = filters?.color ? filters.color.split(',') : [];
-      const duotoneArray = filters?.duotone ? filters.duotone.split(',').map((c) => c.trim()) : [];
+      const duotoneArray = filters?.duotone
+        ? filters.duotone.split(',').map((c) => c.trim())
+        : [];
 
       const whereConditions: any[] = [
         { is_Active: true, is_Deleted: false },
@@ -275,7 +277,7 @@ export class ProductsService {
   async findColorsByCategory(data?: { categoryName: string }) {
     try {
       const { categoryName } = data || {};
-  
+
       const duotoneVariants = await this.prismaService.productVariant.findMany({
         where: {
           product: {
@@ -289,7 +291,7 @@ export class ProductsService {
         },
         select: { color: true },
       });
-  
+
       const colorVariants = await this.prismaService.productVariant.findMany({
         where: {
           product: {
@@ -303,31 +305,33 @@ export class ProductsService {
         },
         select: { color: true },
       });
-  
-      const limitedEditionRegularColors = await this.prismaService.productVariant.findMany({
-        where: {
-          product: {
-            is_Active: true,
-            is_Deleted: false,
-            limitedAddition: true,
+
+      const limitedEditionRegularColors =
+        await this.prismaService.productVariant.findMany({
+          where: {
+            product: {
+              is_Active: true,
+              is_Deleted: false,
+              limitedAddition: true,
+            },
+            isDuotone: false,
           },
-          isDuotone: false,
-        },
-        select: { color: true },
-      });
-  
-      const limitedEditionDuotoneColors = await this.prismaService.productVariant.findMany({
-        where: {
-          product: {
-            is_Active: true,
-            is_Deleted: false,
-            limitedAddition: true,
+          select: { color: true },
+        });
+
+      const limitedEditionDuotoneColors =
+        await this.prismaService.productVariant.findMany({
+          where: {
+            product: {
+              is_Active: true,
+              is_Deleted: false,
+              limitedAddition: true,
+            },
+            isDuotone: true,
           },
-          isDuotone: true,
-        },
-        select: { color: true },
-      });
-  
+          select: { color: true },
+        });
+
       const styles = await this.prismaService.productVariant.findMany({
         where: {
           product: {
@@ -341,12 +345,26 @@ export class ProductsService {
         select: { style: true },
       });
 
-      const duotoneColors = [...new Set(duotoneVariants.map((v) => v.color).filter(Boolean))];
-      const regularColors = [...new Set(colorVariants.map((v) => v.color).filter(Boolean))];
-      const LEDuotoneColors = [...new Set(limitedEditionDuotoneColors.map((v) => v.color).filter(Boolean))];
-      const LERegularColors = [...new Set(limitedEditionRegularColors.map((v) => v.color).filter(Boolean))];
-      const uniqueStyles = [...new Set(styles.map((s) => s.style).filter(Boolean))];
-  
+      const duotoneColors = [
+        ...new Set(duotoneVariants.map((v) => v.color).filter(Boolean)),
+      ];
+      const regularColors = [
+        ...new Set(colorVariants.map((v) => v.color).filter(Boolean)),
+      ];
+      const LEDuotoneColors = [
+        ...new Set(
+          limitedEditionDuotoneColors.map((v) => v.color).filter(Boolean),
+        ),
+      ];
+      const LERegularColors = [
+        ...new Set(
+          limitedEditionRegularColors.map((v) => v.color).filter(Boolean),
+        ),
+      ];
+      const uniqueStyles = [
+        ...new Set(styles.map((s) => s.style).filter(Boolean)),
+      ];
+
       return {
         success: true,
         message: 'Colors retrieved successfully for the category',
@@ -372,16 +390,22 @@ export class ProductsService {
       );
     }
   }
-  
 
-  async getLimitedEditionProducts(filters?: {
-    type?: string;
-    color?: string;
-    style?: string;
-    sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
-  }) {
+  async getLimitedEditionProducts(
+    filters?: {
+      type?: string;
+      color?: string;
+      duotone?: string;
+      style?: string;
+      sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
+    },
+    userId?: string,
+  ) {
     try {
       const colorsArray = filters?.color ? filters.color.split(',') : [];
+      const duotoneArray = filters?.duotone
+        ? filters.duotone.split(',').map((c) => c.trim())
+        : [];
 
       const whereConditions: any[] = [
         { limitedAddition: true, is_Active: true, is_Deleted: false },
@@ -396,6 +420,11 @@ export class ProductsService {
         colorsArray.length > 0 && {
           Variants: {
             some: { color: { in: colorsArray, mode: 'insensitive' } },
+          },
+        },
+        duotoneArray.length > 0 && {
+          Variants: {
+            some: { color: { in: duotoneArray, mode: 'insensitive' } },
           },
         },
       ];
@@ -438,6 +467,15 @@ export class ProductsService {
         );
       }
 
+      let wishlistProductIds = new Set<string>();
+      if (userId) {
+        const wishlist = await this.prismaService.wishlist.findMany({
+          where: { userId },
+          select: { productId: true },
+        });
+        wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+      }
+
       const processedProducts = products.map((product) => {
         let colorsAvailable = product.Variants.map((variant) => variant.color);
         let uniqueColors: string[] = [];
@@ -458,11 +496,15 @@ export class ProductsService {
         });
 
         const totalColors = uniqueColors.length;
+        const isInWishlist = userId
+          ? wishlistProductIds.has(product.productId)
+          : undefined;
 
         return {
           ...product,
           colorsAvailable: uniqueColors,
           totalColors,
+          ...(userId && { isInWishlist }),
         };
       });
 
@@ -482,30 +524,126 @@ export class ProductsService {
     }
   }
 
-  async searchProducts(query) {
+  async searchProducts(
+    query,
+    filters?: {
+      type?: string;
+      color?: string;
+      duotone?: string;
+      style?: string;
+      sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
+    },
+    userId?: string,
+  ) {
     try {
-      const products = await this.prismaService.product.findMany({
-        where: {
-          name: {
-            contains: query,
-            mode: 'insensitive',
+      const colorsArray = filters?.color ? filters.color.split(',') : [];
+      const duotoneArray = filters?.duotone
+        ? filters.duotone.split(',').map((c) => c.trim())
+        : [];
+
+        const whereConditions: any[] = [
+          { is_Active: true, is_Deleted: false },
+          filters?.type && { category: { gender: filters.type.toUpperCase() } },
+          query && {
+            category: {
+              name: { contains: query, mode: 'insensitive' },
+            },
           },
-          is_Active: true,
-          is_Deleted: false,
-          Variants: {
-            some: {},
+          filters?.style && {
+            Variants: {
+              some: { style: { contains: filters.style, mode: 'insensitive' } },
+            },
           },
-        },
-        include: {
-          Variants: true,
-        },
+          duotoneArray.length > 0 && {
+            Variants: {
+              some: { color: { in: duotoneArray, mode: 'insensitive' } },
+            },
+          },
+          colorsArray.length > 0 && {
+            Variants: {
+              some: { color: { in: colorsArray, mode: 'insensitive' } },
+            },
+          },
+        ].filter(Boolean);
+
+    
+
+      const orderBy =
+        filters?.sortOrder === 'newest'
+          ? { createdAt: 'desc' as const }
+          : filters?.sortOrder === 'oldest'
+            ? { createdAt: 'asc' as const }
+            : filters?.sortOrder === 'asc'
+              ? { basePrice: 'asc' as const }
+              : filters?.sortOrder === 'desc'
+                ? { basePrice: 'desc' as const }
+                : { basePrice: 'asc' as const };
+
+
+                const products = await this.prismaService.product.findMany({
+                  where: {
+                    AND: [
+                      ...whereConditions,
+                      {
+                        Variants: {
+                          some: {},
+                        },
+                      },
+                    ],
+                  },
+                  include: {
+                    Variants: true,
+                    category: true,
+                  },
+                  orderBy: orderBy,
+                });
+
+      let wishlistProductIds = new Set<string>();
+      if (userId) {
+        const wishlist = await this.prismaService.wishlist.findMany({
+          where: { userId },
+          select: { productId: true },
+        });
+        wishlistProductIds = new Set(wishlist.map((item) => item.productId));
+      }
+
+      const processedProducts = products.map((product) => {
+        let colorsAvailable = product.Variants.map((variant) => variant.color);
+        let uniqueColors: string[] = [];
+
+        colorsAvailable.forEach((color) => {
+          if (color.includes('&')) {
+            const duotoneColors = color.split('&').map((col) => col.trim());
+            duotoneColors.forEach((duoColor) => {
+              if (!uniqueColors.includes(duoColor)) {
+                uniqueColors.push(duoColor);
+              }
+            });
+          } else {
+            if (!uniqueColors.includes(color)) {
+              uniqueColors.push(color);
+            }
+          }
+        });
+
+        const totalColors = uniqueColors.length;
+        const isInWishlist = userId
+          ? wishlistProductIds.has(product.productId)
+          : undefined;
+
+        return {
+          ...product,
+          colorsAvailable: uniqueColors,
+          totalColors,
+          ...(userId && { isInWishlist }),
+        };
       });
 
       return {
         success: true,
         message: 'Search results retrieved successfully',
         data: {
-          products,
+          products: processedProducts,
         },
       };
     } catch (error) {

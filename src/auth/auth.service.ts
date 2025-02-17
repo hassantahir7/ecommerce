@@ -31,7 +31,7 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     try {
-      const checkExisitingUser = await this.prismaService.user.findUnique({
+      const checkExisitingUser = await this.prismaService.user.findFirst({
         where: {
           email: registerDto.email,
         },
@@ -71,7 +71,7 @@ export class AuthService {
         data: { name: userCreated.name, email: userCreated.email },
       };
     } catch (error) {
-      throw new HttpException(`Something went wrong`, 500);
+      throw error;
     }
   }
 

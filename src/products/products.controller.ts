@@ -95,9 +95,16 @@ export class ProductsController {
     summary: 'Retrieve all colors of products',
     description: 'Retrieve colors of products for filter.',
   })
-  @Get(ProductsEndpoints.searchProducts)
-  async searchProducts(@Query('query') query: string) {
-    return this.productsService.searchProducts(query);
+  @Post(ProductsEndpoints.searchProducts)
+  async searchProducts(@Query('query') query: string,
+  @Body('userId') userId,
+  @Query('type') type?: string,
+  @Query('color') color?: string,
+  @Query('style') style?: string,
+  @Query('duotone') duotone?: string,
+  @Query('sortOrder') sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest',) {
+    const filter = { type, color, duotone, style, sortOrder };
+    return this.productsService.searchProducts(query, filter, userId);
   }
 
   @Get(ProductsEndpoints.findOne)
@@ -106,16 +113,19 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
-  @Get(ProductsEndpoints.retrieveLimitedEditionProducts)
+
+  @Post(ProductsEndpoints.retrieveLimitedEditionProducts)
   @ApiOperation({ summary: 'Retrieve Limited Edition Products' })
   async getLimitedEditionProducts(
+    @Body('userId') userId,
     @Query('type') type?: string,
     @Query('color') color?: string,
     @Query('style') style?: string,
+    @Query('duotone') duotone?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest',
   ) {
-    const filter = { type, color, style, sortOrder };
-    return this.productsService.getLimitedEditionProducts(filter);
+    const filter = { type, color, duotone, style, sortOrder };
+    return this.productsService.getLimitedEditionProducts(filter, userId);
   }
 
   @Patch(ProductsEndpoints.update)
