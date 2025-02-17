@@ -33,7 +33,7 @@ export class AuthService {
     try {
       const checkExisitingUser = await this.prismaService.user.findFirst({
         where: {
-          email: registerDto.email,
+          email: registerDto.email.toLowerCase(),
         },
       });
 
@@ -48,6 +48,7 @@ export class AuthService {
         data: {
           ...registerDto,
           password: hashedPassword,
+          email: registerDto.email.toLowerCase(),
         },
       });
 
@@ -174,9 +175,9 @@ export class AuthService {
 
   async login(loginDto: LogInDto) {
     loginDto.email = loginDto.email?.trim();
-    loginDto.password = loginDto.password?.trim();
+    loginDto.password = loginDto.password?.trim().toLowerCase();
 
-    const user = await this.getUserByEmail(loginDto.email);
+    const user = await this.getUserByEmail(loginDto.email.toLowerCase());
 
     if (!user) {
       throw new NotFoundException('User not found');

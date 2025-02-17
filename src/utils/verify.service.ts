@@ -15,7 +15,7 @@ export class VerifyService {
     try {
       const previousUser = await this.prismaService.verifyUser.findUnique({
         where: {
-          email: email,
+          email: email.toLowerCase(),
         },
       });
       if (previousUser) {
@@ -30,7 +30,7 @@ export class VerifyService {
 
       const userToVerify = await this.prismaService.verifyUser.create({
         data: {
-          email: email,
+          email: email.toLowerCase(),
           otp: randomNumber,
         },
       });
