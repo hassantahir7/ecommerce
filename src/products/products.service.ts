@@ -156,12 +156,14 @@ export class ProductsService {
       type?: string;
       categoryName?: string;
       color?: string;
+      duotone?: string;
       style?: string;
       sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest';
     },
   ) {
     try {
       const colorsArray = filters?.color ? filters.color.split(',') : [];
+      const duotoneArray = filters?.duotone ? filters.duotone.split(',').map((c) => c.trim()) : [];
 
       const whereConditions: any[] = [
         { is_Active: true, is_Deleted: false },
@@ -174,6 +176,11 @@ export class ProductsService {
         filters?.style && {
           Variants: {
             some: { style: { contains: filters.style, mode: 'insensitive' } },
+          },
+        },
+        duotoneArray.length > 0 && {
+          Variants: {
+            some: { color: { in: duotoneArray, mode: 'insensitive' } },
           },
         },
         colorsArray.length > 0 && {

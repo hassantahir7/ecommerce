@@ -65,6 +65,7 @@ export class ProductsController {
     @Query('type') type?: string,
     @Query('categoryName') categoryName?: string,
     @Query('color') color?: string,
+    @Query('duotone') duotone?: string,
     @Query('style') style?: string,
     @Query('sortOrder') sortOrder?: 'asc' | 'desc' | 'newest' | 'oldest',
     
@@ -73,6 +74,7 @@ export class ProductsController {
       type,
       categoryName,
       color,
+      duotone,
       style,
       sortOrder,
     }
