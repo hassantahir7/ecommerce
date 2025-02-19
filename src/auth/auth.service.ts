@@ -78,7 +78,7 @@ export class AuthService {
 
   async verifyUser(email: string, code: string) {
     try {
-      await this.verifyService.verifyOTP(email, code);
+      await this.verifyService.verifyOTP(email.toLowerCase(), code);
 
       const user = await this.prismaService.user.findUnique({
         where: {
@@ -285,7 +285,7 @@ export class AuthService {
   async sendOtp(sendOTPDto: SendOTPDto) {
     try {
       const verifyData = await this.verifyService.generateAndStoreOTP(
-        sendOTPDto.email,
+        sendOTPDto.email.toLowerCase(),
       );
       const body = `${verifyData.otp}`;
       await this.mailerService.sendEmail(
