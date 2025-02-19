@@ -80,14 +80,17 @@ export class AuthService {
     try {
       await this.verifyService.verifyOTP(email.toLowerCase(), code);
 
+
       const user = await this.prismaService.user.findUnique({
         where: {
-          email,
+          email: email.toLowerCase(),
         },
         select: {
           userId: true,
         },
       });
+
+
 
       const token = await this.generateToken(user.userId);
       return {

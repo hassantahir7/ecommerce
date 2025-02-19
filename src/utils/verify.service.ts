@@ -102,6 +102,7 @@ export class VerifyService {
 
   async verifyOTP(email: string, otp: string): Promise<object> {
     try {
+      
       const userToVerify = await this.prismaService.verifyUser.findFirst({
         where: {
           email: email,
