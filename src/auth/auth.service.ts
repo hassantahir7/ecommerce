@@ -320,7 +320,7 @@ export class AuthService {
       }
 
       const user = await this.prismaService.user.findUnique({
-        where: { email },
+        where: { email: email.toLowerCase() },
       });
       if (!user) {
         throw new HttpException(
@@ -339,7 +339,7 @@ export class AuthService {
       const hashedPassword = await hashPassword(newPassword);
 
       await this.prismaService.user.update({
-        where: { email },
+        where: { email: email.toLowerCase() },
         data: { password: hashedPassword },
       });
 
