@@ -567,7 +567,7 @@ export class ProductsService {
           category: { name: { contains: filters.categoryName, mode: 'insensitive' } },
         },
         filters?.query && {
-          category: { name: { contains: filters.query, mode: 'insensitive' } },
+            name: { contains: filters.query, mode: 'insensitive' } ,
         },
         filters?.style && {
           Variants: { some: { style: { contains: filters.style, mode: 'insensitive' } } },

@@ -31,15 +31,28 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     try {
-      const checkExisitingUser = await this.prismaService.user.findFirst({
+      const checkExistingEmail = await this.prismaService.user.findFirst({
         where: {
           email: registerDto.email.toLowerCase(),
         },
       });
 
-      if (checkExisitingUser) {
+      const checkExistingContact = await this.prismaService.user.findFirst({
+        where: {
+          contactNumber: registerDto.contactNumber,
+        },
+      });
+
+      if (checkExistingEmail) {
         throw new HttpException(
           'This email already exists.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      if (checkExistingContact) {
+        throw new HttpException(
+          'This phone no already exists.',
           HttpStatus.BAD_REQUEST,
         );
       }
