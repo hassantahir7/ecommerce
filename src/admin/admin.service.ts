@@ -46,7 +46,7 @@ export class AdminService {
 
   async findOne(id: string) {
     try {
-      const Admin = await this.prisma.admin.findUnique({ where: { id } });
+      const Admin = await this.prisma.admin.findUnique({ where: { adminId: id } });
       if (!Admin) {
         throw new NotFoundException(`Admin with id ${id} not found`);
       }
@@ -77,7 +77,7 @@ export class AdminService {
 
   async update(id: string, data: CreateAdminDto) {
     try {
-      const Admin = await this.prisma.admin.update({ where: { id }, data });
+      const Admin = await this.prisma.admin.update({ where: { adminId: id }, data });
       return {
         success: true,
         data: Admin,
@@ -93,7 +93,7 @@ export class AdminService {
 
   async delete(id: string) {
     try {
-      const Admin = await this.prisma.admin.delete({ where: { id } });
+      const Admin = await this.prisma.admin.delete({ where: { adminId: id } });
       return {
         success: true,
         data: Admin,
