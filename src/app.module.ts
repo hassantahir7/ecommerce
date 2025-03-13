@@ -15,11 +15,13 @@ import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
 import { DiscountModule } from './discount/discount.module';
 import { AddressModule } from './address/address.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    AdminModule,  
     ImageModule,
     AuthModule,
     MailerModule,
@@ -37,3 +39,4 @@ import { AddressModule } from './address/address.module';
   providers: [AppService],
 })
 export class AppModule {}
+ 
