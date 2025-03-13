@@ -143,50 +143,57 @@ export class AuthService {
     }
   }
 
+  
+
   async handleSubscription(data: SubscriptionDto) {
     try {
       const { subscription, email, userId } = data;
-      if (!userId) {
-        await this.prismaService.subscribedUsers.create({
-          data: {
-            email,
-          },
-        });
-       
+  
+      if (subscription) {
+ 
+        if (!userId) {
+          await this.prismaService.subscribedUsers.create({
+            data: { email },
+          });
+        } else {
+          await this.prismaService.subscribedUsers.create({
+            data: { userId, email },
+          });
+  
+          await this.prismaService.user.update({
+            where: { userId },
+            data: {
+              subscription: true,
+              subscriptionMail: email,
+            },
+          });
+        }
       } else {
-        await this.prismaService.subscribedUsers.create({
-          data: {
-            userId,
-            email,
-          },
+        await this.prismaService.subscribedUsers.deleteMany({
+          where: { email },
         });
-        await this.prismaService.user.update({
-          where: {
-            userId,
-          },
-          data: {
-            subscription,
-            subscriptionMail: email,
-          },
-        });
+  
+        if (userId) {
+          await this.prismaService.user.update({
+            where: { userId },
+            data: {
+              subscription: false,
+              subscriptionMail: null,
+            },
+          });
+        }
       }
-
-      let message;
-      if (subscription === true) {
-        message = 'You have successfully subscribed!';
-      } else {
-        message = 'You have successfully unsubscribed!';
-      }
-
+  
       return {
         success: true,
-        message: message,
+        message: subscription ? 'You have successfully subscribed!' : 'You have successfully unsubscribed!',
         data: subscription,
       };
     } catch (error) {
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
     }
   }
+  
 
   async login(loginDto: LogInDto) {
     loginDto.email = loginDto.email?.trim();
