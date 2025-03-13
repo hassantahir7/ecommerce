@@ -93,7 +93,6 @@ export class AuthService {
     try {
       await this.verifyService.verifyOTP(email.toLowerCase(), code);
 
-
       const user = await this.prismaService.user.findUnique({
         where: {
           email: email.toLowerCase(),
@@ -102,8 +101,6 @@ export class AuthService {
           userId: true,
         },
       });
-
-
 
       const token = await this.generateToken(user.userId);
       return {
@@ -146,32 +143,34 @@ export class AuthService {
     }
   }
 
-  async handleSubscription(data: SubscriptionDto, userId: string) {
-    const { subscription, email } = data;
-    if (!userId) {
-      throw new HttpException('User Id is required', HttpStatus.BAD_REQUEST);
-    }
-
+  async handleSubscription(data: SubscriptionDto) {
     try {
-      const user = await this.prismaService.user.findUnique({
-        where: {
-          userId,
-        },
-      });
-
-      if (!user) {
-        throw new NotFoundException('User not found');
+      const { subscription, email, userId } = data;
+      if (!userId) {
+        await this.prismaService.subscribedUsers.create({
+          data: {
+            email,
+          },
+        });
+       
+      } else {
+        await this.prismaService.subscribedUsers.create({
+          data: {
+            userId,
+            email,
+          },
+        });
+        await this.prismaService.user.update({
+          where: {
+            userId,
+          },
+          data: {
+            subscription,
+            subscriptionMail: email,
+          },
+        });
       }
 
-      const isSubscribed = await this.prismaService.user.update({
-        where: {
-          userId,
-        },
-        data: {
-          subscription,
-          subscriptionMail: email
-        },
-      });
       let message;
       if (subscription === true) {
         message = 'You have successfully subscribed!';
@@ -182,7 +181,7 @@ export class AuthService {
       return {
         success: true,
         message: message,
-        data: isSubscribed,
+        data: subscription,
       };
     } catch (error) {
       throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
@@ -191,7 +190,7 @@ export class AuthService {
 
   async login(loginDto: LogInDto) {
     loginDto.email = loginDto.email?.trim();
-    loginDto.password = loginDto.password?.trim()
+    loginDto.password = loginDto.password?.trim();
     const user = await this.getUserByEmail(loginDto.email.toLowerCase());
 
     if (!user) {

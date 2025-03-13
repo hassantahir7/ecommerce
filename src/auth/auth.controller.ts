@@ -24,11 +24,9 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Update Subscription' })
-  @UseGuards(JwtGuard)
-  @ApiBearerAuth() 
   @Post(AuthEndpoints.updateSubscription)
   async handleSubscription(@Req() req, @Body() subscriptionDto: SubscriptionDto) {
-    return this.authService.handleSubscription(subscriptionDto, req.user.id || req.user.userId);
+    return this.authService.handleSubscription(subscriptionDto);
   }
 
 

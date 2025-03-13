@@ -39,7 +39,17 @@ model User {
   OrderInquiries OrderInquiries[]
 
   verificationCode String?
-  isVerified Boolean @default(false)
+  isVerified       Boolean           @default(false)
+  SubscribedUsers  SubscribedUsers[]
+}
+
+model SubscribedUsers {
+  id        String   @id @default(uuid())
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Address {
@@ -62,10 +72,10 @@ model Address {
 }
 
 model Admin {
-  adminId String @id @default(uuid())
-  name    String
-  email   String @unique
-  password String
+  adminId   String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
