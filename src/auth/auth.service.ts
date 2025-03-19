@@ -152,10 +152,22 @@ export class AuthService {
       if (subscription) {
  
         if (!userId) {
+          const checkExistingEmail = await this.prismaService.subscribedUsers.findFirst({
+            where: { email },
+          });
+          if (checkExistingEmail) {
+            throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+          }
           await this.prismaService.subscribedUsers.create({
             data: { email },
           });
         } else {
+          const checkExistingEmail = await this.prismaService.subscribedUsers.findFirst({
+            where: { email },
+          });
+          if (checkExistingEmail) {
+            throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+          }
           await this.prismaService.subscribedUsers.create({
             data: { userId, email },
           });
