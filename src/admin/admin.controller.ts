@@ -23,6 +23,13 @@ export class AdminController {
     return this.adminService.findAll();
   }
 
+  @Post('newsletter')
+  @ApiOperation({ summary: 'Get operation' })
+  @ApiResponse({ status: 200, description: 'Success' })
+  sendNewsletter(@Body() email: string) {
+    return this.adminService.sendNewsletter(email);
+  }
+
   @Post("login")
   @ApiOperation({ summary: 'Login a Admin' })
   @ApiResponse({ status: 200, description: 'The Admin has been successfully logged in.' })

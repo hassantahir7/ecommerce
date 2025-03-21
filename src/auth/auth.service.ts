@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { comparePassword, hashPassword } from 'src/utils/util.function';
@@ -79,6 +80,10 @@ export class AuthService {
         body,
       );
 
+      if (registerDto.subscription) {
+        await this.mailerService.sendNewsletter(registerDto.email, 'Newsletter Subscription');
+      }
+
       return {
         success: true,
         message: 'User created. Verify your account',
@@ -87,6 +92,30 @@ export class AuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  @Cron(CronExpression.EVERY_WEEK)
+  async sendNewsletter() {
+    const users = await this.prismaService.user.findMany({
+      where: { subscription: true },
+    });
+
+    const nonUsers = await this.prismaService.subscribedUsers.findMany({
+      where: {
+        email: {
+          notIn: users.map((user) => user.email),
+        },
+      },
+    });
+
+    const allUsers = [...users, ...nonUsers];
+
+    for (const user of allUsers) {
+      await this.mailerService.sendNewsletter(user.email, 'Newsletter Subscription');
+    }
+
+    
+    console.log('Newsletter sent to all users');
   }
 
   async verifyUser(email: string, code: string) {

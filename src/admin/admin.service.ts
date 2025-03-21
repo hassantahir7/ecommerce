@@ -5,9 +5,10 @@ import { CreateAdminDto } from "./dto/create-admin.dto";
 import { LogInDto } from "./dto/login.dto";
 import { comparePassword } from "src/utils/util.function";
 import { AuthService } from "src/auth/auth.service";
+import { MailerService } from "src/mailer/mailer.service";
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService, private authService: AuthService) {}
+  constructor(private prisma: PrismaService, private authService: AuthService, private mailerService: MailerService) {}
 
   async findAll() {
     try {
@@ -22,6 +23,15 @@ export class AdminService {
     }
   }
 
+  async sendNewsletter(email: any) {
+    try {
+      console.log(email.email);
+      
+      await this.mailerService.sendNewsletter(email.email, 'Newsletter Subscription');
+    } catch (error) {
+      throw error
+    }
+  }
   async login(loginDto: LogInDto) {
     try {
       const admin = await this.prisma.admin.findUnique({ where: { email: loginDto.email } });
