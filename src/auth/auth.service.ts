@@ -155,7 +155,6 @@ export class AuthService {
       const { subscription, email, userId } = data;
   
       if (subscription) {
- 
         if (!userId) {
           const checkExistingEmail = await this.prismaService.subscribedUsers.findFirst({
             where: { email },
@@ -185,6 +184,7 @@ export class AuthService {
             },
           });
         }
+        await this.mailerService.sendNewsletter(email, 'Newsletter Subscription');
       } else {
         await this.prismaService.subscribedUsers.deleteMany({
           where: { email },
@@ -207,7 +207,8 @@ export class AuthService {
         data: subscription,
       };
     } catch (error) {
-      throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST);
+      console.log("error", error)
+      throw error
     }
   }
   
