@@ -152,6 +152,7 @@ export class AuthService {
 
   async handleSubscription(data: SubscriptionDto) {
     try {
+      
       const { subscription, email, userId } = data;
   
       if (subscription) {
