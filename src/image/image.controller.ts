@@ -18,6 +18,13 @@ export class ImageController {
     return this.cloudinaryService.deleteSingleImage(publicId);
   }
 
+  @Post()
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    const fileUrl = await this.cloudinaryService.uploadFile(file);
+    return fileUrl;
+  }
+
  
 
 }
