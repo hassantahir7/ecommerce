@@ -25,6 +25,14 @@ export class AdminController {
     return this.adminService.createHeroSection(heroSectionDto)
   }
 
+  @Post('heroSection/get')
+  @ApiOperation({ summary: 'get a Hero Section' })
+  @ApiResponse({ status: 201, description: 'Hero Section fetched successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async getHeroSection() {
+    return this.adminService.getHeroSection()
+  }
+
   @Put('heroSection/:id')
   @ApiOperation({ summary: 'Update an existing Hero Section' })
   @ApiResponse({ status: 200, description: 'Hero Section updated successfully.' })

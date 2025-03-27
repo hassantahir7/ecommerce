@@ -96,6 +96,21 @@ export class AdminService {
     }
   }
 
+
+  async getHeroSection() {
+    try {
+      const heroSection = await this.prisma.heroSection.findFirst();
+
+      return {
+        success: true,
+        data: heroSection,
+        message: "Hero Section fetched Successfully!"
+      };
+    } catch (error) {
+      throw error
+    }
+  }
+
   async updateHeroSection(id, heroSectionDto: HeroSectionDto) {
     try {
       const updateHeroSection = await this.prisma.heroSection.update({
