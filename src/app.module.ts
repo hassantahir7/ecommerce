@@ -16,10 +16,12 @@ import { PaymentModule } from './payment/payment.module';
 import { DiscountModule } from './discount/discount.module';
 import { AddressModule } from './address/address.module';
 import { AdminModule } from './admin/admin.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AdminModule,  
     ImageModule,

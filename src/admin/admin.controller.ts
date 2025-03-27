@@ -4,6 +4,7 @@ import { AdminService } from "./admin.service";
 import { CreateAdminDto } from "./dto/create-admin.dto";
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { LogInDto } from "./dto/login.dto";
+import { HeroSectionDto } from "./dto/hero-section.dto";
 @ApiTags('Admin')
 @Controller("admin")
 export class AdminController {
@@ -16,12 +17,33 @@ export class AdminController {
     return this.adminService.create(createDto);
   }
 
+  @Post('heroSection')
+  @ApiOperation({ summary: 'Create a new Hero Section' })
+  @ApiResponse({ status: 201, description: 'Hero Section created successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async createHeroSection(@Body() heroSectionDto: HeroSectionDto) {
+    return this.adminService.createHeroSection(heroSectionDto)
+  }
+
+  @Put('heroSection/:id')
+  @ApiOperation({ summary: 'Update an existing Hero Section' })
+  @ApiResponse({ status: 200, description: 'Hero Section updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async updateHeroSection(
+    @Param('id') id: string,
+    @Body() heroSectionDto: HeroSectionDto,
+  ) {
+    return this.adminService.updateHeroSection(id, heroSectionDto)
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all Admins' })
   @ApiResponse({ status: 200, description: 'List of all Admins.' })
   findAll() {
     return this.adminService.findAll();
   }
+
+
 
   @Post('newsletter')
   @ApiOperation({ summary: 'Get operation' })

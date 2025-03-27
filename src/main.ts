@@ -39,6 +39,6 @@ async function bootstrap() {
     bodyParser.raw({ type: 'application/json' }),
   );
 
-  await app.listen(3001);
+  await app.listen(3002);
 }
 bootstrap();

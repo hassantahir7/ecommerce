@@ -10,17 +10,35 @@ export class CategoriesService {
   // Create a new category
   async create(createCategoryDto: CreateCategoryDto) {
     try {
-      if (!createCategoryDto) {
-        throw new HttpException(
-          'No category data provided',
-          HttpStatus.BAD_REQUEST,
-        );
+      if (!createCategoryDto || !createCategoryDto.name) {
+        throw new HttpException('No category name provided', HttpStatus.BAD_REQUEST);
       }
-
-      const createCategory = await this.prismaService.categories.create({
-        data: { ...createCategoryDto },
+  
+      // Convert name to lowercase for case-insensitive comparison
+      const categoryName = createCategoryDto.name.toLowerCase();
+  
+      // Check if a category with the same name (case insensitive) exists
+      const existingCategory = await this.prismaService.categories.findFirst({
+        where: {
+          name: {
+            equals: categoryName,
+            mode: 'insensitive', // Ensures case-insensitive search
+          },
+        },
       });
-
+  
+      if (existingCategory) {
+        throw new HttpException('Category with this name already exists', HttpStatus.CONFLICT);
+      }
+  
+      // Create the category
+      const createCategory = await this.prismaService.categories.create({
+        data: {
+          ...createCategoryDto,
+          name: categoryName, // Store in lowercase to ensure consistency
+        },
+      });
+  
       return {
         success: true,
         message: 'Category created successfully',
@@ -33,6 +51,7 @@ export class CategoriesService {
       );
     }
   }
+  
 
   // Retrieve all categories
   async findAll() {

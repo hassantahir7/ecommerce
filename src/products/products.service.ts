@@ -818,16 +818,20 @@ export class ProductsService {
 
   async remove(id: string) {
     try {
+
       const existingProduct = await this.prismaService.product.findUnique({
-        where: { productId: id },
+        where: { productId: id, is_Deleted: false},
       });
 
       if (!existingProduct) {
         throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
       }
 
-      const deletedProduct = await this.prismaService.product.delete({
+      const deletedProduct = await this.prismaService.product.update({
         where: { productId: id },
+        data:{
+          is_Deleted: true
+        }
       });
 
       return {

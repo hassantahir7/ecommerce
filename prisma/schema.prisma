@@ -52,6 +52,15 @@ model SubscribedUsers {
   updatedAt DateTime @updatedAt
 }
 
+model HeroSection {
+  id           String   @id @default(uuid())
+  pictureOne   String
+  pictureTwo   String
+  pictureThree String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model Address {
   addressId     String      @id @default(uuid())
   userId        String

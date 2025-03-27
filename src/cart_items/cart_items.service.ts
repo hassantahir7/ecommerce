@@ -4,6 +4,7 @@ import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { count } from 'console';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class CartItemsService {
@@ -189,6 +190,48 @@ export class CartItemsService {
         `Failed to remove cart item: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async emptyStaleCarts() {
+    console.log('Running cron job to empty stale carts');
+
+    const thirtyMinutesAgo = new Date();
+    thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
+
+    try {
+      // Find carts where cart items haven't been updated in 30 minutes
+      const staleCarts = await this.prismaService.cartItem.findMany({
+        where: {
+          updatedAt: { lte: thirtyMinutesAgo },
+        },
+        select: { cartItemId: true, cartId: true, quantity: true, variantId: true },
+      });
+
+      if (staleCarts.length === 0) {
+        console.log('No stale carts found.');
+        return;
+      }
+
+      // Delete all stale cart items
+      await this.prismaService.cartItem.deleteMany({
+        where: {
+          cartItemId: { in: staleCarts.map((item) => item.cartItemId) },
+        },
+      });
+
+      // Restore product variant stock
+      for (const item of staleCarts) {
+        await this.prismaService.productVariant.update({
+          where: { variantId: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+
+      console.log(`Cleared ${staleCarts.length} stale cart items.`);
+    } catch (error) {
+      console.log(`Failed to clear stale carts: ${error.message}`);
     }
   }
 }
